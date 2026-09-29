@@ -199,18 +199,26 @@ function shortInst(s){return norm(s).split(" - ")[0].split(" – ")[0];}
 const K={proc:"Processo",inst:"Instituição (OSC)",np:"Nº parcela",dd:"Data do desembolso",val:"Valor",lib:"Liberada?",
 nfd:"Notificação feita?",pcd:"PC parcial apresentada?",agd:"Análise GRDOC/GATEF feita?",gedd:"Consolidação GEDEN feita?",
 efDesemb:"Data do efetivo Desembolso",efNotif:"Data da notificação",efPC:"Data da PC parcial",efAnalise:"Data do relatório GRODC/GATEF"};
-function stColor(s){s=norm(s).toLowerCase();if(s.includes("suspens"))return "var(--ink-3)";if(s.includes("execu"))return "var(--conc)";if(s.includes("celebra"))return "var(--cel)";if(s.includes("gerênc")||s.includes("gerenc")||s.includes("análise técnica")||s.includes("analise tecnica"))return "var(--pend)";if(s.includes("finaliz")||s.includes("aprova"))return "var(--geden)";if(s.includes("dilig"))return "var(--bloco)";return "var(--brand)";}
+function stColor(s){s=norm(s).toLowerCase();if(s.includes("suspens"))return "#4A576A";if(s.includes("execu"))return "var(--conc)";if(s.includes("celebra"))return "var(--cel)";if(s.includes("gerênc")||s.includes("gerenc")||s.includes("análise técnica")||s.includes("analise tecnica"))return "var(--pend)";if(s.includes("finaliz")||s.includes("aprova"))return "var(--geden)";if(s.includes("dilig"))return "var(--bloco)";return "var(--brand)";}
 function done(v){const s=norm(v).toLowerCase();return ["cumprido","sim","concluído","concluido","não se aplica","nao se aplica","feito"].includes(s);}
 function getF(p,fk){if(Array.isArray(fk)){for(const k of fk){if(p[k]!=null&&norm(p[k])!=="")return p[k];}return "";}return p[fk];}
+function sitDip(p){return norm(p[findKey(p,["situa","diprec"])||""]);}
+function sitAG(p){return norm(p[findKey(p,["situa","grdoc"])||""]||p[findKey(p,["situa","gatef"])||""]);}
+function ehBloco(txt){return /^\s*em\s+bloco/i.test(norm(txt));}
+function ehDilig(txt){return /dilig/i.test(norm(txt));}
 function isBloco(c){
-  for(const k in c){if(norm(c[k]).toLowerCase().includes("bloco"))return true;}
-  // também procura nas parcelas do cronograma deste convênio
-  return CR.some(p=>norm(p[K.proc])===norm(c[K.proc]) && Object.keys(p).some(k=>norm(p[k]).toLowerCase().includes("bloco")));
+  // "Em bloco" na Situação DIPREC do convênio OU na Situação atual DIPREC de alguma parcela do cronograma
+  if(ehBloco(c["Situação DIPREC"]))return true;
+  return CR.some(p=>norm(p[K.proc])===norm(c[K.proc]) && ehBloco(sitDip(p)));
 }
-function isDilig(c){for(const k in c){const kk=k.toLowerCase();if((kk.includes("situa")||kk.includes("status"))&&norm(c[k]).toLowerCase().includes("dilig"))return true;}return false;}
+function isDilig(c){
+  if(ehDilig(c["Situação GRDOC"])||ehDilig(c["Situação GATEF"]))return true;
+  return CR.some(p=>norm(p[K.proc])===norm(c[K.proc]) && (ehDilig(sitAG(p))||ehDilig(sitDip(p))));
+}
 function isSuspenso(c){return norm(c["Status Atual"]).toLowerCase().includes("suspens");}
 function parcelasDe(proc){return CR.filter(r=>norm(r[K.proc])===norm(proc)&&(pd(r[K.dd])||numVal(r[K.val])>0)).sort((a,b)=>(+a[K.np])-(+b[K.np]));}
-function libValor(proc){return parcelasDe(proc).filter(p=>done(p[K.lib])).reduce((s,p)=>s+numVal(p[K.val]),0);}
+function isLiberada(p){return done(p[K.lib])||!!pd(p[K.efDesemb]);}
+function libValor(proc){return parcelasDe(proc).filter(isLiberada).reduce((s,p)=>s+numVal(p[K.val]),0);}
 function prevValor(proc){return parcelasDe(proc).reduce((s,p)=>s+numVal(p[K.val]),0);}
 // etapa atual de uma parcela (a 1ª não cumprida). retorna {etapa,resp,c,prazo} ou null se tudo ok
 function etDef(){return [["Notificação da Comissão","Comissão","var(--comissao)",30,K.nfd,K.efNotif],["PC parcial (OSC)","OSC","var(--osc)",20,K.pcd,K.efPC],["Análise GRDOC+GATEF","GRDOC/GATEF","var(--tec)",10,K.agd,K.efAnalise],["Consolidação DIPREC","DIPREC","var(--geden)",5,K.gedd,null],["Desembolso","—","var(--brand)",0,K.lib,K.efDesemb]];}
@@ -249,7 +257,7 @@ function sitDoPasso(p,etapa){
 }
 function etapaAtual(p){const dd=pd(p[K.dd]);if(!dd)return null;const np=+p[K.np];
   const steps=np>=3?etDef():[etDef()[4]];
-  for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);const sit=sitDoPasso(p,etapa);const sl=sit.toLowerCase();return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sl.includes("dilig"),bloco:sl.includes("bloco")};}}
+  for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);let sit=sitDoPasso(p,etapa);if(/n[ãa]o se aplica/i.test(sit))sit="";const sl=sit.toLowerCase();return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sl.includes("dilig"),bloco:ehBloco(sit)};}}
   return null;
 }
 function todasEtapasAbertas(){const out=[];CR.forEach(p=>{const c=C.find(x=>norm(x[K.proc])===norm(p[K.proc]));if(c&&isSuspenso(c))return;const e=etapaAtual(p);if(e){e.inst=shortInst(p[K.inst]);e.parc=p;e.bloco=c?isBloco(c):false;out.push(e);}});return out;}
@@ -418,12 +426,13 @@ function renderPCF(){
 function cronCards(){const el=document.getElementById("cron-cards");const com=filtered().filter(c=>parcelasDe(c[K.proc]).length>0);
   document.getElementById("cron-cnt").textContent=`${com.length} convênios com parcelas`;
   el.innerHTML=com.map(c=>{const proc=c[K.proc];const ps=parcelasDe(proc);const prev=prevValor(proc);const lib=libValor(proc);const pct=prev?Math.round(lib/prev*100):0;const sc=stColor(c["Status Atual"]);
-    const parc=ps.map((p,pi)=>{const isLib=done(p[K.lib]);const dd=pd(p[K.dd]);const e=etapaAtual(p);
+    const parc=ps.map((p,pi)=>{const isLib=isLiberada(p);const dd=pd(p[K.dd]);const e=etapaAtual(p);
       let sitTxt=e?e.sit:"";
+      if(/n[ãa]o se aplica/i.test(sitTxt))sitTxt="";
       let badge;
       if(isLib)badge=`<span class="parc-badge" style="background:var(--conc-l);color:var(--conc)">liberada</span>`;
       else if(e&&+p[K.np]>=3){
-        if(sitTxt){const dl=sitTxt.toLowerCase().includes("dilig"),bl=sitTxt.toLowerCase().includes("bloco");
+        if(sitTxt){const dl=sitTxt.toLowerCase().includes("dilig"),bl=ehBloco(sitTxt);
           const bg=bl?"var(--bloco-l)":dl?"var(--cel-l)":"var(--pend-l)";const cl=bl?"var(--bloco)":dl?"var(--cel)":"var(--pend)";
           badge=`<span class="parc-badge" style="background:${bg};color:${cl}">${sitTxt}</span>`;}
         else badge=`<span class="parc-badge" style="background:var(--pend-l);color:var(--pend)">${e.etapa.split(" ")[0]}</span>`;

@@ -169,6 +169,7 @@ h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:27px;letter-
 .sit::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
 .sit-vencido{background:var(--venc-l);color:var(--venc)}.sit-avencer{background:var(--aven-l);color:var(--aven)}
 .sit-emdia{background:var(--dia-l);color:var(--dia)}.sit-concluido{background:var(--conc-l);color:var(--conc)}
+.sit-suspenso{background:#4A576A;color:#fff}
 .prox{font-family:'IBM Plex Mono';font-size:12px}.prox small{color:var(--ink-3)}
 .trow-detail{display:none;padding:6px 20px 18px;background:var(--brand-l);border-bottom:1px solid var(--line-2)}
 .trow-detail.show{display:block}
@@ -620,12 +621,12 @@ function phaseDetail(r,i){
     return `<div class="ph-row"><div class="ph-name"><span class="gdot" style="background:${gc}"></span>${p.label}</div><div><div class="ph-lbl">Prazo</div><div class="ph-val">${fmtD(p.prazo)}</div></div><div><div class="ph-lbl">Situação</div><span class="sit" style="background:transparent;color:${c};padding-left:0">${t}</span></div><div class="ph-extra">${extra||'<span style="color:var(--ink-3)">—</span>'}</div></div>`;}).join("");
   const obs=OBS[INSTR].map(k=>{const v=r.row[k];return v&&String(v).trim()&&String(v).toLowerCase()!=="não se aplica"?`<b>${k.replace('Observações ','')}:</b> ${v}`:"";}).filter(Boolean).join("<br>");
   const and=r.row[ID[INSTR].andamento];
-  return `<div class="trow-detail" data-idx="${i}"><div class="ph-track">${rows}</div>${(and||obs)?`<div class="det-obs"><div class="ph-lbl">Andamento / observações</div><div class="det-obs-txt">${[and?String(and):"",obs].filter(Boolean).join("<br>")}</div></div>`:''}</div>`;
+  return `<div class="trow-detail" data-idx="${i}">${r.suspenso?'<div class="det-obs" style="background:#EEF1F5;border-color:#CBD3DE"><div class="det-obs-txt" style="color:#4A576A;font-weight:600">⏸ Processo suspenso — os prazos das etapas estão congelados enquanto durar a suspensão.</div></div>':`<div class="ph-track">${rows}</div>`}${(and||obs)?`<div class="det-obs"><div class="ph-lbl">Andamento / observações</div><div class="det-obs-txt">${[and?String(and):"",obs].filter(Boolean).join("<br>")}</div></div>`:''}</div>`;
 }
 function renderTable(data){
   const el=document.getElementById("table");
   if(!data.length){el.innerHTML=`<div class="table-empty"><b>Nenhum processo encontrado</b>Ajuste os filtros.</div>`;return;}
-  data.sort((a,b)=>{const rk={vencido:0,avencer:1,emdia:2,concluido:3};if(rk[a.sit]!==rk[b.sit])return rk[a.sit]-rk[b.sit];if(a.prox&&b.prox)return a.prox.prazo-b.prox.prazo;if(a.prox)return -1;if(b.prox)return 1;return 0;});
+  data.sort((a,b)=>{const rk={vencido:0,avencer:1,emdia:2,concluido:3,suspenso:4};if((rk[a.sit]??9)!==(rk[b.sit]??9))return (rk[a.sit]??9)-(rk[b.sit]??9);if(a.prox&&b.prox)return a.prox.prazo-b.prox.prazo;if(a.prox)return -1;if(b.prox)return 1;return 0;});
   const head=INSTR==="tf"?`<div class="tbl-head tf-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Gerência</span><span>Situação</span><span>Status</span></div>`
     :`<div class="tbl-head ac-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Situação</span><span>Status</span></div>`;
   let html=head;
