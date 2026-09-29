@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panorama da Prestação de Contas — DIPREC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --base:#EAEEF3;--surface:#FFFFFF;--surface-2:#F4F7FA;
+  --ink:#16202E;--ink-2:#4A576A;--ink-3:#8A97A8;
+  --line:#D8E0E9;--line-2:#E8EDF2;
+  --brand:#144E8C;--brand-d:#0D3B6E;--brand-l:#E7EFF8;--gold:#B08900;
+  --radius:14px;--radius-s:9px;
+  --shadow:0 1px 2px rgba(20,40,70,.04),0 8px 24px rgba(20,40,70,.06);
+  --venc:#E03131;--venc-l:#FBE9E9;
+  --aven:#E8850C;--aven-l:#FCEEDD;
+  --dia:#2B8A3E;--dia-l:#E6F4EA;
+  --conc:#0B7285;--conc-l:#DEF2F5;
+  --bloco:#9C36B5;--bloco-l:#F3E4F7;
+  --na:#868E96;--na-l:#EEF0F2;--sem:#ADB5BD;
+  --g-osc:#1F6E43;--g-com:#2E75B6;--g-grdoc:#C55A11;--g-gatef:#BF8F00;--g-geden:#7F6000;--g-diprec:#9C36B5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--base);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;padding:0 0 80px}
+.wrap{max-width:1340px;margin:0 auto;padding:0 24px}
+.mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+
+header{background:linear-gradient(135deg,var(--brand-d),var(--brand));color:#fff;padding:30px 0 28px;position:relative;overflow:hidden;border-bottom:3px solid var(--gold)}
+header::after{content:"";position:absolute;inset:0;opacity:.09;pointer-events:none;background-image:repeating-linear-gradient(90deg,#fff 0 1px,transparent 1px 56px)}
+.head-grid{display:flex;justify-content:space-between;align-items:flex-start;gap:24px;position:relative;flex-wrap:wrap}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#B7D0EC;margin-bottom:9px}
+h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:27px;letter-spacing:-.01em;line-height:1.1}
+.sub{color:#C6DBF1;font-size:13.5px;margin-top:7px;max-width:560px}
+.head-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.src-label{font-size:11px;color:#AFCBEA;font-family:'IBM Plex Mono',monospace}
+.toggle{display:inline-flex;background:rgba(255,255,255,.12);border-radius:11px;padding:4px;gap:4px}
+.toggle button{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;color:#C6DBF1;background:transparent;border:none;padding:9px 18px;border-radius:8px;cursor:pointer;transition:all .15s}
+.toggle button.active{background:#fff;color:var(--brand-d);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:13px;margin-top:-24px;position:relative;z-index:2}
+.kpi{background:var(--surface);border-radius:var(--radius);padding:17px;box-shadow:var(--shadow);border:1px solid var(--line-2);position:relative;overflow:hidden}
+.kpi.clk{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.kpi.clk:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,40,70,.12)}
+.kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c,var(--brand))}
+.kpi.active{box-shadow:0 0 0 2px var(--c),0 8px 20px rgba(20,40,70,.10)}
+.kpi .n{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:29px;line-height:1;letter-spacing:-.02em}
+.kpi .n.money{font-size:21px}
+.kpi .l{font-size:12px;color:var(--ink-2);margin-top:7px;font-weight:500}
+.kpi .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3);margin-top:3px}
+.kpi.mgmt{border-style:dashed;border-color:var(--c)}
+.kpi-mgmt{position:absolute;top:8px;right:8px;font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff);padding:2px 6px;border-radius:20px}
+
+.section-h{display:flex;align-items:baseline;gap:12px;margin:32px 0 15px}
+.section-h h2{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:18px;letter-spacing:-.01em}
+.section-h .rule{flex:1;height:1px;background:var(--line)}
+.section-h .cnt{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-3)}
+
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-h{padding:16px 20px 0;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px}
+.panel-sub{padding:2px 20px 0;font-size:12px;color:var(--ink-3)}
+.panel-b{padding:16px 20px 20px}
+
+.bar-track{display:flex;flex-direction:column;gap:9px;margin-top:4px}
+.bar-item{display:grid;grid-template-columns:1fr;gap:3px;cursor:pointer}
+.bar-item:hover .bk{color:var(--brand)}
+.bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.bk{font-size:12px;color:var(--ink-2);font-weight:500;line-height:1.2}
+.bv{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600}
+.bar-outer{background:var(--surface-2);border-radius:6px;height:14px;overflow:hidden;border:1px solid var(--line-2)}
+.bar-fill{height:100%;border-radius:5px;transition:width .6s cubic-bezier(.2,.8,.2,1);min-width:2px}
+
+.donut-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+.donut-legend{display:flex;flex-direction:column;gap:9px;flex:1;min-width:150px}
+.leg{display:flex;align-items:center;gap:9px;font-size:13px;cursor:pointer}
+.leg:hover{color:var(--brand)}
+.leg .dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+.leg .lv{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px}
+.leg .lp{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);width:38px;text-align:right}
+
+/* bloco callout */
+.bloco{background:linear-gradient(180deg,var(--bloco-l),var(--surface));border:1px solid #E3C6EE;border-left:5px solid var(--bloco);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 22px;margin-top:15px}
+.bloco-h{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.bloco-h .ic{font-size:20px}
+.bloco-h h3{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:var(--bloco)}
+.bloco-h .ct{margin-left:auto;font-family:'Space Grotesk';font-weight:700;font-size:22px;color:var(--bloco)}
+.bloco-sub{font-size:12.5px;color:var(--ink-2);margin-bottom:12px}
+.bloco-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.bloco-item{background:var(--surface);border:1px solid #E8D5F0;border-radius:10px;padding:11px 14px;cursor:pointer;transition:transform .12s}
+.bloco-item:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(156,54,181,.14)}
+.bloco-item .bi-inst{font-weight:600;font-size:13px}
+.bloco-item .bi-meta{font-size:11px;color:var(--ink-2);margin-top:3px;font-family:'IBM Plex Mono'}
+.bloco-empty{font-size:13px;color:var(--dia);display:flex;align-items:center;gap:8px}
+
+/* gerências */
+.ger-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:13px}
+.ger-card{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);box-shadow:var(--shadow);padding:15px 15px 13px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden}
+.ger-card::before{content:"";position:absolute;left:0;top:0;right:0;height:4px;background:var(--gc)}
+.ger-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,40,70,.12)}
+.ger-card.active{box-shadow:0 0 0 2px var(--gc),0 8px 20px rgba(20,40,70,.10)}
+.ger-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--gc);margin-top:3px}
+.ger-total{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:30px;line-height:1;margin:7px 0 2px}
+.ger-total small{font-size:11px;color:var(--ink-3);font-weight:500;font-family:'Inter'}
+.ger-break{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.ger-pill{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px}
+.gp-v{background:var(--venc-l);color:var(--venc)}
+.gp-a{background:var(--aven-l);color:var(--aven)}
+.gp-d{background:var(--dia-l);color:var(--dia)}
+
+/* agenda + calendar (secundário, equilibrado) */
+.ag-item{display:flex;gap:11px;padding:9px 0;border-bottom:1px dashed var(--line-2);cursor:pointer}
+.ag-item:last-child{border-bottom:none}.ag-item:hover{background:var(--surface-2)}
+.ag-date{font-family:'IBM Plex Mono',monospace;text-align:center;flex-shrink:0;width:44px}
+.ag-date .d{font-size:16px;font-weight:600;line-height:1}.ag-date .m{font-size:9px;text-transform:uppercase;color:var(--ink-3)}
+.ag-body{flex:1;min-width:0}
+.ag-inst{font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-meta{font-size:11px;color:var(--ink-2);margin-top:2px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ag-days{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px}
+.gtag{font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;color:#fff}
+.ag-empty{text-align:center;color:var(--ink-3);font-size:13px;padding:16px 0}
+.ag-group-h{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin:4px 0 6px;display:flex}
+.ag-group-h .ct{margin-left:auto;font-family:'IBM Plex Mono';color:var(--ink-3)}
+.cal-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.cal-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;flex:1;text-transform:capitalize}
+.cal-nav{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer;font-size:14px;color:var(--ink-2)}
+.cal-nav:hover{background:var(--brand-l);border-color:var(--brand);color:var(--brand)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{text-align:center;font-size:9px;font-weight:700;color:var(--ink-3);text-transform:uppercase;padding:2px 0}
+.cal-day{aspect-ratio:1;border-radius:7px;border:1px solid var(--line-2);background:var(--surface-2);padding:4px;position:relative;display:flex;flex-direction:column}
+.cal-day.empty{background:transparent;border:none}
+.cal-day.today{border-color:var(--brand);border-width:2px}
+.cal-day.has{cursor:pointer}.cal-day.has:hover{background:var(--brand-l)}
+.cal-day.sel{background:var(--brand-l);border-color:var(--brand)}
+.cal-daynum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-2)}
+.cal-day.today .cal-daynum{color:var(--brand);font-weight:700}
+.cal-dots{margin-top:auto;display:flex;gap:2px;flex-wrap:wrap}
+.cal-dot{width:5px;height:5px;border-radius:50%}
+.cal-badge{position:absolute;top:2px;right:3px;font-family:'IBM Plex Mono';font-size:8px;font-weight:700;color:var(--ink-3)}
+.cal-sel{margin-top:10px;border-top:1px solid var(--line-2);padding-top:8px}
+.cal-sel-head{font-size:11px;font-weight:700;color:var(--ink-2);margin-bottom:5px}
+
+/* filters + table */
+.filters{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);display:flex;gap:11px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:11px;font-weight:600;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em}
+.field select,.field input{font-family:'Inter';font-size:13px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-s);background:var(--surface-2);color:var(--ink);min-width:150px;cursor:pointer}
+.field input{min-width:200px;cursor:text}
+.field select:focus,.field input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-l)}
+.btn-clear{background:var(--surface-2);border:1px solid var(--line);color:var(--ink-2);font-weight:500;font-size:13px;padding:9px 14px;border-radius:var(--radius-s);cursor:pointer}
+.btn-clear:hover{background:var(--venc-l);border-color:var(--venc);color:var(--venc)}
+.table-panel{background:var(--surface);border:1px solid var(--line-2);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-top:16px}
+.tbl-head,.trow{display:grid;gap:12px;align-items:center}
+.tf-cols{grid-template-columns:145px 1.5fr 118px 110px 120px 130px}
+.ac-cols{grid-template-columns:165px 1.8fr 118px 120px 150px}
+.tbl-head{padding:13px 20px;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-2)}
+.trow{padding:12px 20px;border-bottom:1px solid var(--line-2);font-size:13px;cursor:pointer;transition:background .12s}
+.trow:hover{background:var(--surface-2)}.trow.open{background:var(--brand-l)}
+.t-proc{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-2)}
+.t-inst{font-weight:600;font-size:12.5px;line-height:1.3}
+.t-inst small{display:block;font-weight:400;color:var(--ink-3);font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blocotag{display:inline-block;font-size:9.5px;font-weight:700;color:var(--bloco);background:var(--bloco-l);padding:1px 6px;border-radius:20px;margin-top:3px}
+.t-statuscell{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.t-exp{color:var(--ink-3);font-size:13px;transition:transform .2s}.trow.open .t-exp{transform:rotate(180deg);color:var(--brand)}
+.sit{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.sit::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.sit-vencido{background:var(--venc-l);color:var(--venc)}.sit-avencer{background:var(--aven-l);color:var(--aven)}
+.sit-emdia{background:var(--dia-l);color:var(--dia)}.sit-concluido{background:var(--conc-l);color:var(--conc)}
+.prox{font-family:'IBM Plex Mono';font-size:12px}.prox small{color:var(--ink-3)}
+.trow-detail{display:none;padding:6px 20px 18px;background:var(--brand-l);border-bottom:1px solid var(--line-2)}
+.trow-detail.show{display:block}
+.ph-track{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.ph-row{display:grid;grid-template-columns:120px 90px 130px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:9px 13px}
+.ph-name{font-weight:700;font-size:12px;display:flex;align-items:center;gap:7px}
+.ph-name .gdot{width:9px;height:9px;border-radius:3px}
+.ph-lbl{font-size:9px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+.ph-val{font-family:'IBM Plex Mono';font-size:12px;font-weight:500}
+.ph-extra{font-size:11px;color:var(--ink-2)}
+.det-obs{margin-top:10px;background:var(--surface);border:1px solid var(--line-2);border-radius:9px;padding:10px 13px}
+.det-obs-txt{font-size:12px;color:var(--ink-2);line-height:1.45}
+.table-empty{padding:56px 20px;text-align:center;color:var(--ink-3)}
+.table-empty b{display:block;font-family:'Space Grotesk';color:var(--ink-2);font-size:15px;margin-bottom:6px}
+.prazo-chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.pchip{display:flex;flex-direction:column;gap:2px;padding:11px 16px;border-radius:11px;border:1px solid var(--line);background:var(--surface-2);cursor:pointer;transition:all .15s;min-width:120px}
+.pchip:hover{transform:translateY(-1px)}
+.pchip.active{border-color:var(--pc);box-shadow:0 0 0 2px var(--pc) inset}
+.pchip .pcn{font-family:'Space Grotesk';font-weight:700;font-size:22px;line-height:1;color:var(--pc)}
+.pchip .pcl{font-size:11px;color:var(--ink-2);font-weight:500}
+.prazo-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+@media(max-width:760px){.prazo-cols{grid-template-columns:1fr}}
+.foot{margin-top:32px;text-align:center;font-size:12px;color:var(--ink-3);font-family:'IBM Plex Mono'}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:var(--radius-s);font-size:13px;box-shadow:0 10px 30px rgba(0,0,0,.3);transition:transform .35s;z-index:99;font-weight:500}
+.toast.show{transform:translateX(-50%) translateY(0)}
+#graf-modal{position:fixed;inset:0;z-index:200;background:rgba(13,59,110,.55);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:32px 20px;overflow-y:auto}
+#graf-modal.show{display:flex}
+.graf-card{background:var(--surface);border-radius:16px;max-width:1000px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;margin:auto}
+.graf-head{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--line-2);background:linear-gradient(135deg,var(--brand-d),var(--brand));color:#fff}
+.graf-title{font-family:'Space Grotesk';font-weight:700;font-size:19px}
+.graf-sub{font-size:12px;color:#C6DBF1;margin-top:3px}
+.graf-close{background:rgba(255,255,255,.15);color:#fff;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:15px;flex-shrink:0}
+.graf-close:hover{background:rgba(255,255,255,.28)}
+.graf-body{padding:22px 24px;display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.graf-panel{border:1px solid var(--line-2);border-radius:12px;padding:16px}
+.graf-panel h4{font-family:'Space Grotesk';font-weight:600;font-size:14px;margin-bottom:14px}
+.graf-panel.full{grid-column:1/-1}
+.gb-track{display:flex;flex-direction:column;gap:10px}
+.gb-item{display:grid;grid-template-columns:1fr;gap:3px}
+.gb-top{display:flex;justify-content:space-between;font-size:12px}
+.gb-top .gk{color:var(--ink-2);font-weight:500}
+.gb-top .gv{font-family:'IBM Plex Mono';font-weight:600}
+.gb-outer{background:var(--surface-2);border-radius:6px;height:16px;overflow:hidden;border:1px solid var(--line-2)}
+.gb-fill{height:100%;border-radius:5px;min-width:2px}
+@media(max-width:760px){.graf-body{grid-template-columns:1fr}}
+
+@media(max-width:980px){.kpis{grid-template-columns:repeat(2,1fr)}.cols2{grid-template-columns:1fr}
+  .tf-cols,.ac-cols{grid-template-columns:1fr}.tbl-head{display:none}.ph-row{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){h1{font-size:22px}.kpis{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head-grid">
+    <div>
+      <div class="eyebrow">DIPREC · Diretoria de Prestação de Contas · MROSC</div>
+      <h1>Panorama da<br>Prestação de Contas</h1>
+      <p class="sub">Visão geral dos processos por status, gerência e prazos.</p>
+    </div>
+    <div class="head-right">
+      <div class="toggle" id="toggle">
+        <button data-instr="tf" class="active">Termo de Fomento</button>
+        <button data-instr="ac">Acordo de Cooperação</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px"><button id="btn-refresh" style="display:none;background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:8px;padding:7px 13px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Space Grotesk'">↻ Atualizar</button><div class="src-label" id="src-label">dados embutidos</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+
+  <div id="proc-top"></div>
+
+  <div class="section-h"><h2>Panorama geral</h2><div class="rule"></div></div>
+  <div class="cols2">
+    <div class="panel">
+      <div class="panel-h">Processos por status</div>
+      <div class="panel-sub" id="status-sub">Situação atual · clique para filtrar</div>
+      <div class="panel-b"><div class="bar-track" id="chart-status"></div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-h">Situação dos prazos</div>
+      <div class="panel-sub">Onde cada processo está em relação aos prazos</div>
+      <div class="panel-b"><div class="donut-wrap"><div id="donut"></div><div class="donut-legend" id="donut-legend"></div></div></div>
+    </div>
+  </div>
+
+  <div id="bloco-section"></div>
+
+  <div class="section-h"><h2>Situação por gerência</h2><div class="rule"></div><span class="cnt">processos aguardando ação de cada área · clique para filtrar</span></div>
+  <div class="ger-grid" id="ger-grid"></div>
+
+  <div class="section-h"><h2>Agenda de prazos</h2><div class="rule"></div><span class="cnt">clique num período para ver a lista</span></div>
+  <div class="panel">
+    <div class="panel-b">
+      <div class="prazo-chips" id="prazo-chips"></div>
+      <div id="prazo-list"></div>
+    </div>
+  </div>
+
+  <div id="proc-bottom"></div>
+  <div id="processos-block">
+  <div class="section-h"><h2>Processos</h2><div class="rule"></div><span class="cnt" id="tbl-count"></span></div>
+  <div class="filters">
+    <div class="field"><label>Situação do prazo</label><select id="f-sit"></select></div>
+    <div class="field"><label>Gerência (aguardando)</label><select id="f-ger"></select></div>
+    <div class="field"><label>Status</label><select id="f-status"></select></div>
+    <div class="field"><label>Buscar</label><input type="text" id="f-busca" placeholder="instituição, processo, projeto…"></div>
+    <button class="btn-clear" id="f-clear">Limpar filtros</button>
+  </div>
+  <div class="table-panel" id="table"></div>
+  </div>
+  <div class="foot">Panorama da prestação de contas · DIPREC · dados atualizáveis pela planilha</div>
+</div>
+<div id="graf-modal">
+  <div class="graf-card">
+    <div class="graf-head">
+      <div><div class="graf-title" id="graf-title">Gráficos</div><div class="graf-sub" id="graf-sub"></div></div>
+      <button class="graf-close" id="graf-close">✕</button>
+    </div>
+    <div class="graf-body" id="graf-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const RAW={tf:[{"Processo": "00060-00194314/2024-26", "Parlamentar": "Alberto Fraga", "Emenda": "Federal", "Instituição": "MROSC Hospital São Mateus", "Projeto": "A Tenda +", "Valor": 9868471.65, "Instrumento": "Termo de Fomento", "Status Atual": "Finalizado (REJEIÇÃO de contas)", "Apreciação de relatório GATEF/GRDOC": "Concluída", "Nº processo inclusão de documento /NR na plataforma": "00060-00478214/2025-31", "Andamento / Tramitação": "OSC entregou diligencia em 05/03/2025. elaborar relatorio final", "Encerramento da execução": "2025-04-22", "Entrega Relatório (OSC) - Data Prazo": "2025-07-21", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2025-09-19", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2025-11-18", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "SIM", "GRDOC - Situação da análise": "Análise concluída", "SEI Relatório": "", "GATEF - Data Prazo": "2025-11-18", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "SIM", "GATEF - Situação da análise": "Análise concluída", "GEDEN -  Data Prazo": "2025-12-03", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "SIM", "GEDEN - Situação da análise": "Não se aplica", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "relatório final encaminhado ao GAB", "Nº Relatório PC Final": "rel. 01/2026 (198228173)", "Data Relatório PC Final": "", "Observações GRDOC": "elaborado relatorio técnico em 11/12/2025", "Observações GATEF": "elaborado relatorio técnico em 12/12/2025", "Observações GEDEN": "não se aplica", "Observações DIPREC": "RELATORIO FINAL ENCAMINHADO EM 22/04/2026. Decisão em 13/05/2026"}, {"Processo": "00060-00168073/2024-60", "Parlamentar": "Gilvan Máximo", "Emenda": "Federal", "Instituição": "IBRAS", "Projeto": "Saúde Solidária", "Valor": "14112015", "Instrumento": "Termo de Fomento", "Status Atual": "Análise técnica pelas gerências", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "00060-00485693/2025-41", "Andamento / Tramitação": "Aguardando finalização da análise pelas Gerencias da DIPREC", "Encerramento da execução": "2025-06-21", "Entrega Relatório (OSC) - Data Prazo": "2025-10-19", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "SIM", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2025-12-18", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2026-02-16", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "SIM", "GRDOC - Situação da análise": "Em análise", "SEI Relatório": "", "GATEF - Data Prazo": "2026-02-16", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "Em diligência", "GEDEN -  Data Prazo": "2026-03-03", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "Analisando a documentação", "Observações GATEF": "Ofício 1 (195268169). Aguardando Planilha de Conciliação.", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00066993/2024-44", "Parlamentar": "Roosevelt Vilela", "Emenda": "Federal", "Instituição": "rede feminina de combate ao Cancer de Brasília", "Projeto": "projeto rede feminina de combate ao Cancer de Brasília", "Valor": 449999.96, "Instrumento": "termo de Fomento", "Status Atual": "Finalizado (APROVAÇÃO de contas com ressalvas)", "Apreciação de relatório GATEF/GRDOC": "Concluída", "Nº processo inclusão de documento /NR na plataforma": "00060-00518406/2025-97", "Andamento / Tramitação": "Aguardando finalização da análise pelas Gerencias da DIPREC", "Encerramento da execução": "2025-09-25", "Entrega Relatório (OSC) - Data Prazo": "2025-12-24", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-02-22", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2026-04-23", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "SIM", "GRDOC - Situação da análise": "Análise concluída", "SEI Relatório": "", "GATEF - Data Prazo": "2026-04-23", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "SIM", "GATEF - Situação da análise": "Análise concluída", "GEDEN -  Data Prazo": "2026-05-08", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "SIM", "GEDEN - Situação da análise": "Não se aplica", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "análise pela DIPREC", "Nº Relatório PC Final": "rel. 02/2026 (203741482)", "Data Relatório PC Final": "", "Observações GRDOC": "elaborado relatorio técnico em 20/07/2026", "Observações GATEF": "elaborado relatorio técnico em 22/05/2026", "Observações GEDEN": "não se aplica", "Observações DIPREC": "RELATORIO FINAL ENCAMINHADO EM 21/07/2026."}, {"Processo": "00060-00122994/2024-86", "Parlamentar": "Damares Alves", "Emenda": "Federal", "Instituição": "ICTDF", "Projeto": "Custeio e manutenção do ICTDF - Obra Ressonância", "Valor": "2000000", "Instrumento": "Termo de Fomento", "Status Atual": "Análise técnica pelas gerências", "Apreciação de relatório GATEF/GRDOC": "Em bloco", "Nº processo inclusão de documento /NR na plataforma": "00060-00520220/2025-06", "Andamento / Tramitação": "Aguardando finalização da análise pelas Gerencias da DIPREC", "Encerramento da execução": "2025-10-30", "Entrega Relatório (OSC) - Data Prazo": "2026-01-28", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-03-29", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2026-05-28", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "Em análise", "SEI Relatório": "", "GATEF - Data Prazo": "2026-05-28", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "Análise concluída", "GEDEN -  Data Prazo": "2026-06-12", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "enviado a gerencias em 20/02/2026", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "Analisando a documentação", "Observações GATEF": "Enviado Notificação n.º 13/2026 - SES/SECCIC/SUCONV/DIPREC/GRDOC - prazo 10 dias", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00266803/2025-78", "Parlamentar": "wellington Luiz", "Emenda": "Distrital", "Instituição": "Associção de Mulheres Mastectomizadas de Brasilia", "Projeto": "Recomeçar", "Valor": "200000", "Instrumento": "Termo de Fomento", "Status Atual": "Análise técnica pelas gerências", "Apreciação de relatório GATEF/GRDOC": "Em bloco", "Nº processo inclusão de documento /NR na plataforma": "00060-00509624/2025-31", "Andamento / Tramitação": "Aguardando finalização da análise pelas Gerencias da DIPREC", "Encerramento da execução": "2025-11-30", "Entrega Relatório (OSC) - Data Prazo": "2026-02-28", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-04-29", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2026-06-28", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "Em diligência", "SEI Relatório": "", "GATEF - Data Prazo": "2026-06-28", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "Análise concluída", "GEDEN -  Data Prazo": "2026-07-13", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "enviado a gerencias em 03/03/2026", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "Elaboração de parecer", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00381834/2024-77", "Parlamentar": "Gabriel Magno", "Emenda": "Distrital", "Instituição": "Rede Feminina de Combate ao Câncer de Brasília", "Projeto": "Rede Feminina de Combate ao Câncer de Brasília", "Valor": "150000", "Instrumento": "Termo de Fomento", "Status Atual": "Análise técnica pelas gerências", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "00060-00012604/2026-22", "Andamento / Tramitação": "Aguardando finalização da análise pelas Gerencias da DIPREC", "Encerramento da execução": "2025-12-10", "Entrega Relatório (OSC) - Data Prazo": "2026-03-10", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-05-09", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "SIM", "GRDOC - Data Prazo": "2026-07-08", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "Em análise", "SEI Relatório": "", "GATEF - Data Prazo": "2026-07-08", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "Emissão de relatório", "GEDEN -  Data Prazo": "2026-07-23", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "enviado a gerencias em 11/03/2026", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00447669/2024-23", "Parlamentar": "Rafael Prudente", "Emenda": "Federal", "Instituição": "IBSAUDE", "Projeto": "Restaurando Sorrisos", "Valor": 7998406.1, "Instrumento": "Termo de Fomento", "Status Atual": "Aguardando relatório de aprovação/homologação", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "00060-00461132/2025-57", "Andamento / Tramitação": "", "Encerramento da execução": "2026-02-17", "Entrega Relatório (OSC) - Data Prazo": "2026-05-18", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "SIM", "OSC solicitou prorrogação?": "NÃO", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-07-17", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2026-09-15", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "Notificação do final da execução", "SEI Relatório": "", "GATEF - Data Prazo": "2026-09-15", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2026-09-30", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "enviado a gerencias em 20/02/2026", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00445952/2024-11", "Parlamentar": "Rafael Prudente", "Emenda": "Federal", "Instituição": "INSTITUTO ELISEDAPE", "Projeto": "Em Um Piscar de Olhos", "Valor": "10735793", "Instrumento": "Termo de Fomento", "Status Atual": "Aguardando relatório de execução (OSC)", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "00060-00465853/2025-36", "Andamento / Tramitação": "", "Encerramento da execução": "2026-05-13", "Entrega Relatório (OSC) - Data Prazo": "2026-08-11", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2026-10-10", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2026-12-09", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2026-12-09", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2026-12-24", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "enviado às GERENCIAS", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": "enviado a gerencias em 21/05/2026"}, {"Processo": "00060-00311329/2025-46", "Parlamentar": "Gilvan Máximo", "Emenda": "Distrital", "Instituição": "Beneficência Hospitalar de Cesário Lange - BHCL", "Projeto": "Minha Saúde", "Valor": 8940426.49, "Instrumento": "Termo de Fomento", "Status Atual": "Em execução", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "MROSC: 0055-01-000000003983/0025-28", "Andamento / Tramitação": "", "Encerramento da execução": "2026-08-29", "Entrega Relatório (OSC) - Data Prazo": "2026-11-27", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2027-01-26", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2027-03-27", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2027-03-27", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2027-04-11", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00250841/2025-17", "Parlamentar": "Jorge Vianna", "Emenda": "Distrital", "Instituição": "ICTDF", "Projeto": "AQUISIÇÃO DE UNIFORMES/ENXOVAL HOSPITALAR PARA OS SERVIDORES DO ICTDF - DISTRITO FEDERAL", "Valor": 999993.2, "Instrumento": "Termo de Fomento", "Status Atual": "Em execução", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "MROSC: 0055-01-900000001344/2025-80", "Andamento / Tramitação": "", "Encerramento da execução": "2026-12-15", "Entrega Relatório (OSC) - Data Prazo": "2027-03-15", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2027-05-14", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2027-07-13", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2027-07-13", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2027-07-28", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00360977/2025-26", "Parlamentar": "Dayse Amarilio", "Emenda": "Distrital", "Instituição": "Rede Feminina de Combate ao Câncer de Brasília", "Projeto": "Rede Feminina de Combate ao Câncer de Brasília", "Valor": "250000", "Instrumento": "Termo de Fomento", "Status Atual": "Em execução", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "MROSC: 0055-01-900000001632/2025-00", "Andamento / Tramitação": "", "Encerramento da execução": "2026-12-20", "Entrega Relatório (OSC) - Data Prazo": "2027-03-20", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2027-05-19", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2027-07-18", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2027-07-18", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2027-08-02", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00325838/2025-56", "Parlamentar": "Julio Cesar", "Emenda": "Federal", "Instituição": "Instituto Brasileiro de Conectividade Social – IBCS", "Projeto": "Além do Olhar", "Valor": "2000000", "Instrumento": "Termo de Fomento", "Status Atual": "Em execução", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "MROSC: 0055-01-900000002426/2026-45", "Andamento / Tramitação": "", "Encerramento da execução": "2026-12-24", "Entrega Relatório (OSC) - Data Prazo": "2027-03-24", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2027-05-23", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2027-07-22", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2027-07-22", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2027-08-06", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00108890/2026-21", "Parlamentar": "Jorge Vianna", "Emenda": "Distrital", "Instituição": "Agência Adventista de D. e R. Assistenciais do Centro Oeste - ADRA", "Projeto": "Reabilitação Locomotora", "Valor": "500000", "Instrumento": "Termo de Fomento", "Status Atual": "Em execução", "Apreciação de relatório GATEF/GRDOC": "", "Nº processo inclusão de documento /NR na plataforma": "MROSC: 0055-01-900000002429/2026-62", "Andamento / Tramitação": "", "Encerramento da execução": "2027-04-29", "Entrega Relatório (OSC) - Data Prazo": "2027-07-28", "Entrega relatório (OSC) - Data de Entrega": "", "Entrega relatório (OSC) - Cumprido?": "", "OSC solicitou prorrogação?": "", "Prorrogação - Data Prazo": "", "Comissão Gestora - Data Prazo": "2027-09-26", "Comissão Gestora - Data de Cumprimento": "", "Comissão Gestora — Cumprido?": "", "GRDOC - Data Prazo": "2027-11-25", "GRDOC  - Data do relatório": "", "GRDOC - Cumprido?": "", "GRDOC - Situação da análise": "", "SEI Relatório": "", "GATEF - Data Prazo": "2027-11-25", "GATEF - Data do relatório": "", "GATEF - Cumprido?": "", "GATEF - Situação da análise": "", "GEDEN -  Data Prazo": "2027-12-10", "GEDEN - Data de Cumprimento": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Situação da análise": "", "Nº Relatório PC Final": "", "Data Relatório PC Final": "", "Observações GRDOC": "", "Observações GATEF": "", "Observações GEDEN": "", "Observações DIPREC": ""}], ac:[{"Processo": "00060-00329781/2025-64", "Instituição": "Instituto Sabin", "Projeto": "Revitalização e execução do programa Ludoteca, no HMIB", "Instrumento": "Acordo de Cooperação", "Status Atual": "Análise técnica pelas gerências", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2025-12-09", "Entrega PC (OSC) - Data Prazo": "2026-03-09", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "SIM", "Comissão Gestora - Data Prazo": "2026-05-08", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "SIM", "GEDEN - Data Prazo": "2026-07-07", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "NÃO SE APLICA", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2026-07-22", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "Emissão de relatório", "Observações GEDEN": "", "Observações DIPREC": "relatorio de execução do objeto entregue dia 23/06/2026 (fora do prazo) e relatorio do gestor entregue no dia 26/06/2026"}, {"Processo": "00041-00012057/2025-41", "Instituição": "Instituto BRB em parceria com o Instituto Sabin", "Projeto": "Projeto De Peito Aberto", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2026-08-15", "Entrega PC (OSC) - Data Prazo": "2026-11-13", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-01-12", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-03-13", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-03-28", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00035992/2024-58", "Instituição": "RESMED - Brasil Representação de Produtos Médicos", "Projeto": "Fortalecimento do enfrentamento das Doenças Crônicas", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2026-09-30", "Entrega PC (OSC) - Data Prazo": "2026-12-29", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-02-27", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-04-28", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-05-13", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00289893/2025-75", "Instituição": "Instituto Aplicado de Seleção e Pesquisa – IASP", "Projeto": "Desenvolvimento e a implementação do projeto SAMia", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2026-11-28", "Entrega PC (OSC) - Data Prazo": "2027-02-26", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-04-27", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-06-26", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-07-11", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00259348/2017-44", "Instituição": "NOVACAP", "Projeto": "Construção do Centro de Atenção Psicossocial Infantojuvenil- CAPSi, Ceilândia/DF.", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2027-04-17", "Entrega PC (OSC) - Data Prazo": "2027-07-16", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-09-14", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-11-13", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-11-28", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "04031-00001194/2025-75", "Instituição": "IPEDF CODEPLAN", "Projeto": "implementação de ações conjuntas para o desenvolvimento e compartilhamento de informações, métodos, estudos e pesquisas de interesse comum, conforme especificações estabelecidas no plano de trabalho.", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2027-04-17", "Entrega PC (OSC) - Data Prazo": "2027-07-16", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-09-14", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-11-13", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-11-28", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00226729/2025-57", "Instituição": "Instituto Avalia", "Projeto": "Cessão de solução tecnológica destinada à gestão de processos seletivos simplificados", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2027-05-05", "Entrega PC (OSC) - Data Prazo": "2027-08-03", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2027-10-02", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2027-12-01", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2027-12-16", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00112-00015229/2025-75", "Instituição": "NOVACAP", "Projeto": "Construção Hospital Oncológico de Brasília", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2028-02-17", "Entrega PC (OSC) - Data Prazo": "2028-05-17", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2028-07-16", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2028-09-14", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2028-09-29", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00110421/2018-61", "Instituição": "NOVACAP", "Projeto": "Construção da Unidade Básica de Saúde de Sobradinho", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2028-10-17", "Entrega PC (OSC) - Data Prazo": "2029-01-15", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2029-03-16", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2029-05-15", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2029-05-30", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00197139/2024-29", "Instituição": "AIDS HEALTHCARE Foundation do Brasil com a interveniência da Fundação de Apoio Institucional Muraki", "Projeto": "Projeto de Ampliação e Fortalecimento da Resposta ao HIV/AIDS e às IST no Distrito Federal", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2030-07-28", "Entrega PC (OSC) - Data Prazo": "2030-10-26", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2030-12-25", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2031-02-23", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2031-03-10", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00329651/2025-21", "Instituição": "Ministério da Saúde", "Projeto": "Implantação de Posto Fixo de Vacinação", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2030-12-03", "Entrega PC (OSC) - Data Prazo": "2031-03-03", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2031-05-02", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2031-07-01", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2031-07-16", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00524309/2024-52", "Instituição": "Fundação Oswaldo Cruz (Fio Cruz) e Universidade de Brasília – UnB", "Projeto": "Pesquisa, Desenvolv.\n e Inovação (PD&I) nº 227/2024", "Instrumento": "termo de colaboração", "Status Atual": "Em execução", "Andamento / Tramitação": "SEI", "Encerramento da execução": "2031-04-29", "Entrega PC (OSC) - Data Prazo": "2031-07-28", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "2031-09-26", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "2031-11-25", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "2031-12-10", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00261893/2024-20", "Instituição": "UNB e GRF/DIVEP/SVS", "Projeto": "Sala Modelo de Vacinação no HUB/UNB", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00112-00000856/2026-92", "Instituição": "NOVACAP", "Projeto": "Reforma e modernização de diversas unidades de saúde visando a efeiciência energética", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00540501/2023-13", "Instituição": "NOVACAP", "Projeto": "Construção de Policlínica do Recanto das Emas", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00096376/2026-35", "Instituição": "AMACC -  Associação de Mulheres e Pacientes Acometidos por Câncer", "Projeto": "Cessão de Espaço no no HRG para implantação de sala de acolhimento para atendimento humanizado a paciente oncológicos e usuários em situação de vulnerabilidade", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00523832/2025-42", "Instituição": "APAE", "Projeto": "implantação do Sistema de Gestão e Matriciamento da Rede Referenciada ao CER II de Taguatinga", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00053-00127179/2025-47", "Instituição": "Corpo de Bombeiro - CBMDF", "Projeto": "Participação do SAMU/SES-DF nas missões de transporte aeromédico do CBMDF", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00112-00004368/2025-73\n0112-001183/2016", "Instituição": "NOVACAP", "Projeto": "climazação nas edificações dos Laboratórios Asa Norte - Brasília/DF", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00220616/2025-48", "Instituição": "TJDFT", "Projeto": "Programa “Maria da Penha vai à Saúde”", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00554968/2025-02", "Instituição": "GSK - Espirometria", "Projeto": "Redução das filas Espirometria", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "0060-011612/2014", "Instituição": "DETRAN/ DF", "Projeto": "Parceria técnica nas operações aéreas destinadas ao transporte de órgãos e tecidos humanos", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00009917/2018-93", "Instituição": "NOVACAP", "Projeto": "Reforma e modernização da subestação do Hospital Regional do Guará- HRGU (Eficiência Energética), situado QI 6, Área Especial - Guará I, Brasília/DF", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00566223/2025-88", "Instituição": "NOHARM - Instituto de Intelgência Artificial na Saúde", "Projeto": "Promover a melhoria do\ncuidado aos pacientes de forma gratuita para o Sistema Único de Saúde do Brasil (SNS)", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00194174/2025-77", "Instituição": "Ministério Saúde/FIOCRUZ", "Projeto": "Implementação do Método Wolbachia", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}, {"Processo": "00060-00246539/2025-56", "Instituição": "Associação Nacional de Hospitais Privados  (Hospitais ANAHP)", "Projeto": "Plataforma SINHA (Sistema de Indicadores)", "Instrumento": "Acordo de Cooperação", "Status Atual": "Em análise pela Diretoria de Celebração", "Andamento / Tramitação": "", "Encerramento da execução": "", "Entrega PC (OSC) - Data Prazo": "", "Entrega PC (OSC) - Data de Entrega": "", "Entrega PC (OSC) - Cumprido?": "", "Comissão Gestora - Data Prazo": "", "Comissão Gestora- Data do parecer": "", "Comissão Gestora - Cumprido?": "", "GEDEN - Data Prazo": "", "GEDEN - Data do relatório": "", "GEDEN - Cumprido?": "", "GEDEN - Situação da análise": "", "DIPREC - Data Prazo": "", "DIPREC - Data do relatório": "", "DIPREC - Cumprido?": "", "DIPREC - Situação da análise": "", "Observações GEDEN": "", "Observações DIPREC": ""}]};
+/* ===== Fonte ao vivo (Google Sheets publicado em CSV) ===== */
+const SHEET_CSV={tf:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQ66fgPb3kYnXUSgTs2_Zz5JQaMax5rgXit4FuyR-MmyG6suYGlzjAhqP2rtMcCEVmZujGfsMoZqo1K/pub?gid=1452153886&single=true&output=csv", ac:"https://docs.google.com/spreadsheets/d/e/2PACX-1vQ66fgPb3kYnXUSgTs2_Zz5JQaMax5rgXit4FuyR-MmyG6suYGlzjAhqP2rtMcCEVmZujGfsMoZqo1K/pub?gid=1683000118&single=true&output=csv"};
+function parseBRNumber(v){
+  if(v==null||v==="")return 0;
+  if(typeof v==="number")return isNaN(v)?0:v;
+  let x=String(v).replace(/[^\d.,-]/g,"").trim();
+  if(!x||!/\d/.test(x))return 0;
+  const hasC=x.includes(","),hasD=x.includes(".");
+  if(hasC&&hasD){ if(x.lastIndexOf(",")>x.lastIndexOf("."))x=x.replace(/\./g,"").replace(",",".");else x=x.replace(/,/g,""); }
+  else if(hasC)x=x.replace(/,/g,".");
+  else if(hasD){const p=x.split(".");if(p.length>1&&p.slice(1).every(g=>g.length===3))x=x.replace(/\./g,"");}
+  const n=parseFloat(x);return isNaN(n)?0:n;
+}
+function parseCSV(text){
+  const rows=[];let row=[],fld="",i=0,q=false;text=String(text).replace(/\r\n/g,"\n").replace(/\r/g,"\n");
+  while(i<text.length){const c=text[i];
+    if(q){if(c==='"'){if(text[i+1]==='"'){fld+='"';i+=2;continue;}q=false;i++;continue;}fld+=c;i++;continue;}
+    if(c==='"'){q=true;i++;continue;}if(c===','){row.push(fld);fld="";i++;continue;}
+    if(c==='\n'){row.push(fld);rows.push(row);row=[];fld="";i++;continue;}fld+=c;i++;}
+  if(fld!==""||row.length){row.push(fld);rows.push(row);}return rows;
+}
+function csvToObjects(text){
+  const rows=parseCSV(text);if(!rows.length)return [];
+  const hdr=rows[0].map(h=>String(h).trim());const out=[];
+  for(let r=1;r<rows.length;r++){const c=rows[r];if(!c[0]||!String(c[0]).trim())continue;
+    const o={};hdr.forEach((h,j)=>{if(h)o[h]=c[j]!=null?String(c[j]).trim():"";});out.push(o);}
+  return out;
+}
+async function loadLive(silent){
+  const urls=SHEET_CSV;if(!urls.tf&&!urls.ac){render();return;}
+  setSrc("carregando do Google Sheets…");
+  try{
+    const bust=u=>u+(u.includes("?")?"&":"?")+"_="+Date.now();
+    const [tf,ac]=await Promise.all([
+      urls.tf?fetch(bust(urls.tf),{cache:"no-store"}).then(r=>r.text()):Promise.resolve(""),
+      urls.ac?fetch(bust(urls.ac),{cache:"no-store"}).then(r=>r.text()):Promise.resolve("")
+    ]);
+    if(tf){if(/<html/i.test(tf))throw new Error("TF nao publicado");const a=csvToObjects(tf);if(a.length)RAW.tf=a;}
+    if(ac){if(/<html/i.test(ac))throw new Error("AC nao publicado");const a=csvToObjects(ac);if(a.length)RAW.ac=a;}
+    render();
+    const h=new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+    setSrc("Google Sheets \u00b7 atualizado \u00e0s "+h);
+    if(!silent)toast("Dados atualizados do Google Sheets");
+  }catch(e){console.error(e);setSrc("mostrando dados salvos \u00b7 falha ao atualizar");if(!silent)toast("Nao consegui acessar a planilha publicada.");}
+}
+function setSrc(t){const el=document.getElementById("src-label");if(el)el.textContent=t;}
+const HOJE=new Date();HOJE.setHours(0,0,0,0);
+const MES_PT=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const MES_FULL=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+const GER_COLOR={OSC:"--g-osc",Comissão:"--g-com",GRDOC:"--g-grdoc",GATEF:"--g-gatef",GEDEN:"--g-geden",DIPREC:"--g-diprec"};
+const PHASES={
+  tf:[
+    {key:"entrega",label:"Entrega do relatório (OSC)",resp:"OSC",prazo:"Entrega Relatório (OSC) - Data Prazo",cumprido:"Entrega relatório (OSC) - Cumprido?",data:"Entrega relatório (OSC) - Data de Entrega",preds:[]},
+    {key:"comissao",label:"Comissão Gestora",resp:"Comissão",prazo:"Comissão Gestora - Data Prazo",cumprido:"Comissão Gestora — Cumprido?",data:"Comissão Gestora - Data de Cumprimento",preds:["entrega"]},
+    {key:"grdoc",label:"GRDOC",resp:"GRDOC",prazo:"GRDOC - Data Prazo",cumprido:"GRDOC - Cumprido?",data:"GRDOC  - Data do relatório",situacao:"GRDOC - Situação da análise",preds:["comissao"]},
+    {key:"gatef",label:"GATEF",resp:"GATEF",prazo:"GATEF - Data Prazo",cumprido:"GATEF - Cumprido?",data:"GATEF - Data do relatório",situacao:"GATEF - Situação da análise",preds:["comissao"]},
+    {key:"geden",label:"GEDEN",resp:"GEDEN",prazo:"GEDEN -  Data Prazo",cumprido:"GEDEN - Cumprido?",data:"GEDEN - Data de Cumprimento",situacao:"GEDEN - Situação da análise",preds:["grdoc","gatef"]},
+    {key:"diprec",label:"DIPREC (relatório consolidado)",resp:"DIPREC",prazo:"DIPREC - Data Prazo",situacao:"DIPREC - Situação da análise",preds:["geden"]},
+  ],
+  ac:[
+    {key:"entrega",label:"Entrega da PC (OSC)",resp:"OSC",prazo:"Entrega PC (OSC) - Data Prazo",cumprido:"Entrega PC (OSC) - Cumprido?",data:"Entrega PC (OSC) - Data de Entrega",preds:[]},
+    {key:"comissao",label:"Comissão Gestora",resp:"Comissão",prazo:"Comissão Gestora - Data Prazo",cumprido:"Comissão Gestora - Cumprido?",data:"Comissão Gestora- Data do parecer",preds:["entrega"]},
+    {key:"geden",label:"GEDEN",resp:"GEDEN",prazo:"GEDEN - Data Prazo",cumprido:"GEDEN - Cumprido?",data:"GEDEN - Data do relatório",situacao:"GEDEN - Situação da análise",preds:["comissao"]},
+    {key:"diprec",label:"DIPREC",resp:"DIPREC",prazo:"DIPREC - Data Prazo",cumprido:"DIPREC - Cumprido?",data:"DIPREC - Data do relatório",situacao:"DIPREC - Situação da análise",preds:["geden"]},
+  ]
+};
+const ID={tf:{inst:"Instituição",proj:"Projeto",proc:"Processo",status:"Status Atual",parl:"Parlamentar",valor:"Valor",andamento:"Andamento / Tramitação",relFinal:"Nº Relatório PC Final",bloco:"Apreciação de relatório GATEF/GRDOC"},
+  ac:{inst:"Instituição",proj:"Projeto",proc:"Processo",status:"Status Atual",andamento:"Andamento / Tramitação"}};
+const OBS={tf:["Observações GRDOC","Observações GATEF","Observações GEDEN","Observações DIPREC"],ac:["Observações GEDEN","Observações DIPREC"]};
+
+function parseDate(v){
+  if(v==null||v==="")return null;
+  if(typeof v==="number"){const d=new Date(Date.UTC(1899,11,30));d.setUTCDate(d.getUTCDate()+Math.round(v));d.setHours(0,0,0,0);return d;}
+  const s=String(v).trim();
+  let m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(m){const d=new Date(+m[1],+m[2]-1,+m[3]);d.setHours(0,0,0,0);return d;}
+  m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);if(m){const d=new Date(+m[3],+m[2]-1,+m[1]);d.setHours(0,0,0,0);return d;}
+  return null;
+}
+function days(a,b){return Math.round((a-b)/86400000);}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function fmtMoney(n){if(!n)return "—";if(n>=1e6)return "R$ "+(n/1e6).toFixed(1).replace(".",",")+" mi";if(n>=1e3)return "R$ "+(n/1e3).toFixed(0)+" mil";return "R$ "+n.toFixed(0);}
+function fmtMoneyFull(n){return "R$ "+n.toLocaleString("pt-BR",{maximumFractionDigits:0});}
+let INSTR="tf",records=[];
+function isFinal(row){return String(row[ID[INSTR].status]||"").toLowerCase().includes("finaliz");}
+function fase(row){
+  const st=String(row[ID[INSTR].status]||"").trim();
+  if(isFinal(row))return "final";
+  if(st==="Em execução")return "execucao";
+  if(st==="Em análise pela Diretoria de Celebração")return "celebracao";
+  return "pc"; // em prestação de contas (análise técnica, aguardando relatórios, etc.)
+}
+function phaseStatus(prazo){if(!prazo)return {st:"semprazo"};const d=days(prazo,HOJE);if(prazo<HOJE)return {st:"vencido",dias:days(HOJE,prazo)};if(d<=30)return {st:"avencer",dias:d};return {st:"noprazo",dias:d};}
+
+function buildRecord(row){
+  const phs=PHASES[INSTR],done={},objs=[];
+  phs.forEach(p=>{
+    const cumpr=String(row[p.cumprido]||"").trim().toUpperCase();
+    const data=p.data?parseDate(row[p.data]):null;
+    let isDone=(cumpr==="SIM")||(!!data),isNa=(cumpr==="NÃO SE APLICA"||cumpr==="NAO SE APLICA");
+    if(p.key==="diprec"&&INSTR==="tf"){if(isFinal(row)||String(row[ID.tf.relFinal]||"").trim())isDone=true;}
+    done[p.key]=isDone||isNa;objs.push({p,cumpr,data,isDone,isNa});
+  });
+  // etapa técnica conjunta (GRDOC + GATEF entregam juntas)
+  const temTecnica=("grdoc" in done)&&("gatef" in done);
+  const tecnicaDone=temTecnica?(done.grdoc&&done.gatef):true;
+  const phases=objs.map(o=>{
+    let predsDone=o.p.preds.every(k=>done[k]);
+    let effDone=o.isDone;
+    // GRDOC/GATEF: enquanto a dupla não terminou, a gerência segue "ativa" mesmo que já tenha entregue a sua parte
+    if((o.p.key==="grdoc"||o.p.key==="gatef")&&temTecnica&&!tecnicaDone){ effDone=false; }
+    const pending=!effDone&&!o.isNa;
+    const ativo=pending&&predsDone;
+    const prazo=parseDate(row[o.p.prazo]);let st;
+    if(o.isNa)st={st:"na"};
+    else if((o.p.key==="grdoc"||o.p.key==="gatef")&&temTecnica&&!tecnicaDone&&o.isDone) st={st:"aguardapar"}; // já entregou, aguardando a outra
+    else if(o.isDone)st={st:"cumprido"};
+    else if(ativo)st=phaseStatus(prazo);
+    else st={st:"aguardando"};
+    return {key:o.p.key,label:o.p.label,resp:o.p.resp,prazo,data:o.data,situacao:o.p.situacao?String(row[o.p.situacao]||""):"",ativo,...st};
+  });
+  const ativos=phases.filter(p=>p.ativo);
+  let sit;
+  if(phases.every(p=>done[p.key]))sit="concluido";
+  else if(ativos.some(p=>p.st==="vencido"))sit="vencido";
+  else if(ativos.some(p=>p.st==="avencer"))sit="avencer";
+  else sit="emdia";
+  const cp=ativos.filter(p=>p.prazo&&p.st!=="aguardapar").sort((a,b)=>a.prazo-b.prazo);
+  const bloco=INSTR==="tf"&&String(row[ID.tf.bloco]||"").trim().toLowerCase()==="em bloco";
+  let valor=0;if(INSTR==="tf"){valor=parseBRNumber(row[ID.tf.valor]);}
+  return {row,phases,ativos,sit,prox:cp[0]||null,bloco,valor,
+    proc:row[ID[INSTR].proc]||"",inst:row[ID[INSTR].inst]||"",proj:row[ID[INSTR].proj]||"",status:row[ID[INSTR].status]||""};
+}
+const SIT_META={vencido:{l:"Prazo extrapolado",c:"var(--venc)"},avencer:{l:"Prazo próximo",c:"var(--aven)"},emdia:{l:"Dentro do prazo",c:"var(--dia)"},concluido:{l:"Concluído",c:"var(--conc)"}};
+
+/* filtros */
+const F={sit:"",ger:"",status:"",busca:"",bloco:false,fase:""};
+function uniq(a){return[...new Set(a)];}
+function fillSel(id,items,all){const s=document.getElementById(id);const cur=s.value;s.innerHTML=`<option value="">${all}</option>`+items.map(i=>`<option value="${(Array.isArray(i)?i[0]:i).replace(/"/g,'&quot;')}">${Array.isArray(i)?i[1]:i}</option>`).join("");s.value=cur;}
+function buildFilters(){
+  fillSel("f-sit",[["vencido","Prazo extrapolado"],["avencer","Prazo próximo (≤30 dias)"],["emdia","Dentro do prazo"],["concluido","Concluído"]],"Todas as situações");
+  fillSel("f-ger",uniq(PHASES[INSTR].map(p=>p.resp)),"Todas as gerências");
+  fillSel("f-status",uniq(records.map(r=>r.status).filter(Boolean)).sort(),"Todos os status");
+}
+function filtered(){
+  const q=F.busca.toLowerCase().trim();
+  return records.filter(r=>{
+    if(F.bloco&&!r.bloco)return false;
+    if(F.fase&&fase(r.row)!==F.fase)return false;
+    if(F.sit&&r.sit!==F.sit)return false;
+    if(F.ger&&!r.ativos.some(p=>p.resp===F.ger))return false;
+    if(F.status&&r.status!==F.status)return false;
+    if(q){const h=(r.proc+" "+r.inst+" "+r.proj+" "+r.status).toLowerCase();if(!h.includes(q))return false;}
+    return true;
+  });
+}
+
+function render(){
+  records=RAW[INSTR].map(buildRecord);buildFilters();
+  renderKPIs();renderStatusChart();renderDonut();renderBloco();renderGerencias();
+  const data=filtered();renderPrazos(data);renderTable(data);
+  document.getElementById("tbl-count").textContent=`${data.length} de ${records.length} processos`;
+  placeProcessos();
+}
+function isFiltered(){return !!(F.sit||F.ger||F.status||F.busca||F.bloco||F.fase);}
+function clearAllF(){Object.keys(F).forEach(x=>F[x]=(x==="bloco"?false:""));["f-sit","f-ger","f-status"].forEach(id=>{const e=document.getElementById(id);if(e)e.value="";});const b=document.getElementById("f-busca");if(b)b.value="";}
+function placeProcessos(){
+  const block=document.getElementById("processos-block");
+  const target=document.getElementById(isFiltered()?"proc-top":"proc-bottom");
+  if(block&&target&&block.parentElement!==target)target.appendChild(block);
+}
+function rerender(){const data=filtered();renderKPIs();renderStatusChart();renderDonut();renderBloco();renderGerencias();renderPrazos(data);renderTable(data);document.getElementById("tbl-count").textContent=`${data.length} de ${records.length} processos`;placeProcessos();}
+
+function renderKPIs(){
+  const total=records.length;
+  const cnt=fz=>records.filter(r=>fase(r.row)===fz).length;
+  const exec=cnt("execucao"),pc=cnt("pc"),celeb=cnt("celebracao"),fin=cnt("final");
+  const venc=records.filter(r=>r.sit==="vencido").length;
+  const bloco=records.filter(r=>r.bloco).length;
+  const noFilter=!F.sit&&!F.ger&&!F.status&&!F.busca&&!F.bloco&&!F.fase;
+  const valor=(noFilter?records:filtered()).reduce((s,r)=>s+(r.valor||0),0);
+  const valorTag=noFilter?"soma dos termos":"nesta seleção";
+  let cards=[{n:total,l:"Processos",tag:"ver todos",c:"var(--brand)",act:"all",active:noFilter}];
+  if(INSTR==="tf"){
+    cards.push({n:fmtMoney(valor),l:"Valor acompanhado",tag:valorTag,c:"var(--gold)",money:true});
+    cards.push({n:exec,l:"Em execução",tag:"objeto em andamento",c:"var(--g-com)",act:"fase-execucao",active:F.fase==="execucao"});
+    cards.push({n:pc,l:"Em prestação de contas",tag:"após a execução",c:"var(--aven)",act:"fase-pc",active:F.fase==="pc"});
+    cards.push({n:fin,l:"Finalizados",tag:"tramitação concluída",c:"var(--conc)",act:"fase-final",active:F.fase==="final"});
+    cards.push({n:venc,l:"Prazo extrapolado",tag:"exigem ação",c:"var(--venc)",act:"sit-vencido",active:F.sit==="vencido",mgmt:true});
+    cards.push({n:bloco,l:"No bloco",tag:"aguardando apreciação",c:"var(--bloco)",act:"bloco",active:F.bloco,mgmt:true});
+  } else {
+    cards.push({n:celeb,l:"Em análise (Celebração)",tag:"aguardando celebração",c:"var(--g-diprec)",act:"fase-celebracao",active:F.fase==="celebracao"});
+    cards.push({n:exec,l:"Em execução",tag:"objeto em andamento",c:"var(--g-com)",act:"fase-execucao",active:F.fase==="execucao"});
+    cards.push({n:pc,l:"Em prestação de contas",tag:"após a execução",c:"var(--aven)",act:"fase-pc",active:F.fase==="pc"});
+    cards.push({n:fin,l:"Finalizados",tag:"tramitação concluída",c:"var(--conc)",act:"fase-final",active:F.fase==="final"});
+    cards.push({n:venc,l:"Prazo extrapolado",tag:"exigem ação",c:"var(--venc)",act:"sit-vencido",active:F.sit==="vencido",mgmt:true});
+  }
+  const kpel=document.getElementById("kpis");
+  kpel.style.gridTemplateColumns=`repeat(${cards.length},minmax(0,1fr))`;
+  kpel.innerHTML=cards.map(c=>
+    `<div class="kpi ${c.act?'clk':''} ${c.active?'active':''} ${c.mgmt?'mgmt':''}" data-act="${c.act||''}" style="--c:${c.c}">${c.mgmt?'<span class="kpi-mgmt">gestão interna</span>':''}<div class="n ${c.money?'money':''}">${c.n}</div><div class="l">${c.l}</div><div class="tag">${c.tag}</div></div>`
+  ).join("");
+  document.querySelectorAll(".kpi.clk").forEach(k=>k.addEventListener("click",()=>{
+    const a=k.dataset.act;
+    const wasActive=k.classList.contains("active");
+    // limpa todos os filtros primeiro (evita combinações confusas)
+    Object.keys(F).forEach(x=>F[x]=(x==="bloco"?false:""));
+    ["f-sit","f-ger","f-status"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("f-busca").value="";
+    // aplica só o clicado (se já estava ativo, apenas limpa = alterna)
+    if(!wasActive){
+      if(a==="sit-vencido"){F.sit="vencido";document.getElementById("f-sit").value="vencido";}
+      else if(a==="bloco"){F.bloco=true;}
+      else if(a.indexOf("fase-")===0){F.fase=a.slice(5);}
+    }
+    rerender();
+  }));
+}
+
+function statusColor(s){s=s.toLowerCase();
+  if(s.includes("finaliz")&&s.includes("aprov"))return "var(--dia)";
+  if(s.includes("finaliz")&&s.includes("rejei"))return "var(--venc)";
+  if(s.includes("finaliz"))return "var(--conc)";
+  if(s.includes("execução")||s.includes("execucao"))return "var(--g-com)";
+  if(s.includes("análise")||s.includes("analise"))return "var(--aven)";
+  if(s.includes("aguardando"))return "var(--sem)";
+  return "var(--brand)";}
+function renderStatusChart(){
+  const m={};records.forEach(r=>{const s=r.status||"(sem status)";m[s]=(m[s]||0)+1;});
+  const ent=Object.entries(m).sort((a,b)=>b[1]-a[1]);const max=Math.max(1,...ent.map(e=>e[1]));
+  if(INSTR==="tf"){const v=records.reduce((s,r)=>s+(r.valor||0),0);document.getElementById("status-sub").textContent=`Situação atual · valor acompanhado ${fmtMoneyFull(v)} · clique para filtrar`;}
+  else document.getElementById("status-sub").textContent="Situação atual · clique para filtrar";
+  document.getElementById("chart-status").innerHTML=ent.map(([k,v])=>
+    `<div class="bar-item" data-status="${k==='(sem status)'?'':k.replace(/"/g,'&quot;')}"><div class="bar-top"><span class="bk">${k}</span><span class="bv">${v}</span></div>
+     <div class="bar-outer"><div class="bar-fill" style="width:${v/max*100}%;background:${statusColor(k)}"></div></div></div>`).join("");
+  document.querySelectorAll("#chart-status .bar-item").forEach(b=>b.addEventListener("click",()=>{const s=b.dataset.status;const was=F.status===s;clearAllF();if(!was){F.status=s;document.getElementById("f-status").value=s;}rerender();}));
+}
+function renderDonut(){
+  const order=["vencido","avencer","emdia","concluido"];const cnt={};order.forEach(k=>cnt[k]=0);
+  records.forEach(r=>cnt[r.sit]++);const total=records.length||1;const R=52,C=2*Math.PI*R;let off=0;
+  const segs=order.filter(k=>cnt[k]>0).map(k=>{const frac=cnt[k]/total,len=frac*C;const s=`<circle r="${R}" cx="70" cy="70" fill="none" stroke="${SIT_META[k].c}" stroke-width="20" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"/>`;off+=len;return s;}).join("");
+  document.getElementById("donut").innerHTML=`<svg width="140" height="140" viewBox="0 0 140 140">${segs||`<circle r="52" cx="70" cy="70" fill="none" stroke="var(--line)" stroke-width="20"/>`}<text x="70" y="66" text-anchor="middle" font-family="Space Grotesk" font-size="30" font-weight="700" fill="var(--ink)">${records.length}</text><text x="70" y="84" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--ink-3)">processos</text></svg>`;
+  document.getElementById("donut-legend").innerHTML=order.map(k=>{const v=cnt[k],p=records.length?Math.round(v/records.length*100):0;return `<div class="leg" data-sit="${k}"><span class="dot" style="background:${SIT_META[k].c}"></span>${SIT_META[k].l}<span class="lv">${v}</span><span class="lp">${p}%</span></div>`;}).join("");
+  document.querySelectorAll("#donut-legend .leg").forEach(l=>l.addEventListener("click",()=>{const s=l.dataset.sit;const was=F.sit===s;clearAllF();if(!was){F.sit=s;document.getElementById("f-sit").value=s;}rerender();}));
+}
+function renderBloco(){
+  const el=document.getElementById("bloco-section");
+  if(INSTR!=="tf"){el.innerHTML="";return;}
+  const items=records.filter(r=>r.bloco);
+  el.innerHTML=`<div class="bloco">
+    <div class="bloco-h"><span class="ic">📌</span><h3>No bloco — aguardando apreciação</h3><span class="ct">${items.length}</span></div>
+    <div class="bloco-sub">Relatórios parados esperando análise/andamento da DIPREC.</div>
+    ${items.length?`<div class="bloco-list">${items.map(r=>{const g=r.prox?r.prox.resp:"—";return `<div class="bloco-item" data-proc="${r.proc}"><div class="bi-inst">${r.inst||r.proc}</div><div class="bi-meta">${r.proc} · ${r.status||''}</div></div>`;}).join("")}</div>`
+      :`<div class="bloco-empty">✓ Nenhum processo no bloco no momento.</div>`}
+  </div>`;
+  el.querySelectorAll(".bloco-item").forEach(it=>it.addEventListener("click",()=>openProc(it.dataset.proc)));
+}
+function renderGerencias(){
+  const gers=uniq(PHASES[INSTR].map(p=>p.resp));
+  document.getElementById("ger-grid").innerHTML=gers.map(g=>{
+    const items=records.flatMap(r=>r.ativos.filter(p=>p.resp===g));
+    const v=items.filter(p=>p.st==="vencido").length,a=items.filter(p=>p.st==="avencer").length,d=items.filter(p=>p.st==="noprazo"||p.st==="semprazo"||p.st==="aguardapar").length,tot=items.length;
+    const col=`var(${GER_COLOR[g]||"--brand"})`;
+    return `<div class="ger-card ${F.ger===g?'active':''}" data-ger="${g}" style="--gc:${col}"><div class="ger-name">${g}</div>
+      <div class="ger-total">${tot}<small> na fila</small></div>
+      <div class="ger-break">${v?`<span class="ger-pill gp-v">🔴 ${v}</span>`:''}${a?`<span class="ger-pill gp-a">🟡 ${a}</span>`:''}${d?`<span class="ger-pill gp-d">🟢 ${d}</span>`:''}${tot===0?'<span class="ger-pill" style="background:var(--surface-2);color:var(--ink-3)">sem pendências</span>':''}</div></div>`;
+  }).join("");
+  document.querySelectorAll(".ger-card").forEach(c=>c.addEventListener("click",()=>{const g=c.dataset.ger;const was=F.ger===g;clearAllF();if(!was){F.ger=g;document.getElementById("f-ger").value=g;}rerender();}));
+}
+function daysBadge(p){if(p.st==="vencido")return `<span class="ag-days" style="background:var(--venc-l);color:var(--venc)">${p.dias} dias de atraso</span>`;if(p.st==="avencer")return `<span class="ag-days" style="background:var(--aven-l);color:var(--aven)">faltam ${p.dias} dias</span>`;if(p.st==="noprazo")return `<span class="ag-days" style="background:var(--dia-l);color:var(--dia)">faltam ${p.dias} dias</span>`;return "";}
+let prazoBucket=null;
+function renderPrazos(data){
+  let items=[];data.forEach(r=>{
+    const ativosVal=r.ativos.filter(p=>p.prazo&&["vencido","avencer","noprazo"].includes(p.st));
+    let tecUsada=false;
+    ativosVal.forEach(p=>{
+      if(p.key==="grdoc"||p.key==="gatef"){
+        if(tecUsada)return; tecUsada=true;
+        const tec=ativosVal.filter(x=>x.key==="grdoc"||x.key==="gatef");
+        const rank=x=>x.st==="vencido"?0:x.st==="avencer"?1:2;
+        tec.sort((a,b)=>rank(a)-rank(b)||a.prazo-b.prazo);
+        const w=tec[0];
+        items.push({r,p:{...w,resps:["GRDOC","GATEF"]}});
+      } else {
+        items.push({r,p});
+      }
+    });
+  });
+  const fora=items.filter(i=>i.p.st==="vencido");
+  const p7=items.filter(i=>i.p.st==="avencer"&&i.p.dias<=7);
+  const p30=items.filter(i=>i.p.st==="avencer"&&i.p.dias>7);
+  const dep=items.filter(i=>i.p.st==="noprazo");
+  const buckets={fora:{l:"Prazo extrapolado",its:fora,c:"var(--venc)"},p7:{l:"Próximos 7 dias",its:p7,c:"var(--aven)"},p30:{l:"Em 8–30 dias",its:p30,c:"var(--aven)"},dep:{l:"Mais adiante",its:dep,c:"var(--dia)"}};
+  if(!prazoBucket||!buckets[prazoBucket].its.length){prazoBucket=(fora.length?"fora":p7.length?"p7":p30.length?"p30":"dep");}
+  document.getElementById("prazo-chips").innerHTML=Object.entries(buckets).map(([k,b])=>
+    `<div class="pchip ${prazoBucket===k?'active':''}" data-b="${k}" style="--pc:${b.c}"><span class="pcn">${b.its.length}</span><span class="pcl">${b.l}</span></div>`).join("");
+  document.querySelectorAll(".pchip").forEach(c=>c.addEventListener("click",()=>{prazoBucket=c.dataset.b;renderPrazos(filtered());}));
+  const its=[...buckets[prazoBucket].its].sort((a,b)=>a.p.prazo-b.p.prazo);
+  const el=document.getElementById("prazo-list");
+  if(!its.length){el.innerHTML='<div class="ag-empty">Nenhum prazo neste período.</div>';return;}
+  const half=Math.ceil(its.length/2);
+  const col=arr=>arr.map(({r,p})=>{const dm={d:p.prazo.getDate(),m:MES_PT[p.prazo.getMonth()],y:p.prazo.getFullYear()};
+    const tags=(p.resps||[p.resp]).map(g=>`<span class="gtag" style="background:var(${GER_COLOR[g]||'--brand'});margin-right:3px">${g}</span>`).join("");
+    return `<div class="ag-item" data-proc="${r.proc}"><div class="ag-date"><div class="d">${String(dm.d).padStart(2,'0')}</div><div class="m">${dm.m}</div></div>
+    <div class="ag-body"><div class="ag-inst">${r.inst||r.proc}</div><div class="ag-meta">${tags}${daysBadge(p)}</div></div></div>`;}).join("");
+  el.innerHTML=`<div class="prazo-cols"><div>${col(its.slice(0,half))}</div><div>${col(its.slice(half))}</div></div>`;
+  el.querySelectorAll(".ag-item").forEach(it=>it.addEventListener("click",()=>openProc(it.dataset.proc)));
+}
+
+function fmtD(d){return d?`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`:'—';}
+function phaseDetail(r,i){
+  const rows=r.phases.map(p=>{const gc=`var(${GER_COLOR[p.resp]||'--brand'})`;let t,c;
+    if(p.st==="cumprido"){t="Cumprido";c="var(--dia)";}else if(p.st==="na"){t="Não se aplica";c="var(--na)";}
+    else if(p.st==="vencido"){t=`Prazo extrapolado (${p.dias}d)`;c="var(--venc)";}else if(p.st==="avencer"){t=`Vence em ${p.dias}d`;c="var(--aven)";}
+    else if(p.st==="noprazo"){t=`No prazo (${p.dias}d)`;c="var(--dia)";}else if(p.st==="aguardapar"){t="Entregou — aguardando a outra gerência";c="var(--dia)";}else if(p.st==="aguardando"){t="Aguardando etapa anterior";c="var(--sem)";}else{t="Sem prazo";c="var(--sem)";}
+    const extra=[p.data?`concluído ${fmtD(p.data)}`:"",p.situacao||""].filter(Boolean).join(" · ");
+    return `<div class="ph-row"><div class="ph-name"><span class="gdot" style="background:${gc}"></span>${p.label}</div><div><div class="ph-lbl">Prazo</div><div class="ph-val">${fmtD(p.prazo)}</div></div><div><div class="ph-lbl">Situação</div><span class="sit" style="background:transparent;color:${c};padding-left:0">${t}</span></div><div class="ph-extra">${extra||'<span style="color:var(--ink-3)">—</span>'}</div></div>`;}).join("");
+  const obs=OBS[INSTR].map(k=>{const v=r.row[k];return v&&String(v).trim()&&String(v).toLowerCase()!=="não se aplica"?`<b>${k.replace('Observações ','')}:</b> ${v}`:"";}).filter(Boolean).join("<br>");
+  const and=r.row[ID[INSTR].andamento];
+  return `<div class="trow-detail" data-idx="${i}"><div class="ph-track">${rows}</div>${(and||obs)?`<div class="det-obs"><div class="ph-lbl">Andamento / observações</div><div class="det-obs-txt">${[and?String(and):"",obs].filter(Boolean).join("<br>")}</div></div>`:''}</div>`;
+}
+function renderTable(data){
+  const el=document.getElementById("table");
+  if(!data.length){el.innerHTML=`<div class="table-empty"><b>Nenhum processo encontrado</b>Ajuste os filtros.</div>`;return;}
+  data.sort((a,b)=>{const rk={vencido:0,avencer:1,emdia:2,concluido:3};if(rk[a.sit]!==rk[b.sit])return rk[a.sit]-rk[b.sit];if(a.prox&&b.prox)return a.prox.prazo-b.prox.prazo;if(a.prox)return -1;if(b.prox)return 1;return 0;});
+  const head=INSTR==="tf"?`<div class="tbl-head tf-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Gerência</span><span>Situação</span><span>Status</span></div>`
+    :`<div class="tbl-head ac-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Situação</span><span>Status</span></div>`;
+  let html=head;
+  data.forEach((r,i)=>{
+    const prox=r.prox?`${fmtD(r.prox.prazo)}<br><small>${r.prox.resp}</small>`:'<small style="color:var(--ink-3)">—</small>';
+    const gersAtivas=[...new Set(r.ativos.map(p=>p.resp))];
+    const gerCell=gersAtivas.length?gersAtivas.map(g=>`<span class="gtag" style="background:var(${GER_COLOR[g]||'--brand'});margin:1px 2px 1px 0;display:inline-block">${g}</span>`).join(''):'—';
+    const sitCell=`<span class="sit sit-${r.sit}">${SIT_META[r.sit].l}</span>`;
+    const proj=r.proj?`<small>${r.proj}</small>`:'';const bt=r.bloco?`<span class="blocotag">📌 no bloco</span>`:'';
+    if(INSTR==="tf")html+=`<div class="trow tf-cols" data-idx="${i}"><div class="t-proc">${r.proc}</div><div class="t-inst">${r.inst||'—'}${proj}${bt}</div><div class="prox">${prox}</div><div>${gerCell}</div><div>${sitCell}</div><div class="t-statuscell"><span style="font-size:11px;color:var(--ink-2)">${r.status||'—'}</span><span class="t-exp">⌄</span></div></div>`;
+    else html+=`<div class="trow ac-cols" data-idx="${i}"><div class="t-proc">${r.proc}</div><div class="t-inst">${r.inst||'—'}${proj}</div><div class="prox">${prox}</div><div>${sitCell}</div><div class="t-statuscell"><span style="font-size:11px;color:var(--ink-2)">${r.status||'—'}</span><span class="t-exp">⌄</span></div></div>`;
+    html+=phaseDetail(r,i);
+  });
+  el.innerHTML=html;
+  el.querySelectorAll(".trow").forEach(row=>row.addEventListener("click",()=>{const det=row.nextElementSibling;const op=row.classList.toggle("open");if(det&&det.classList.contains("trow-detail"))det.classList.toggle("show",op);}));
+}
+function openProc(proc){
+  document.getElementById("table").scrollIntoView({behavior:"smooth",block:"start"});
+  setTimeout(()=>{document.querySelectorAll(".trow").forEach(row=>{if(row.querySelector(".t-proc")?.textContent===proc){if(!row.classList.contains("open"))row.click();row.scrollIntoView({behavior:"smooth",block:"center"});}});},300);
+}
+document.getElementById("f-sit").addEventListener("change",e=>{F.sit=e.target.value;rerender();});
+document.getElementById("f-ger").addEventListener("change",e=>{F.ger=e.target.value;rerender();});
+document.getElementById("f-status").addEventListener("change",e=>{F.status=e.target.value;rerender();});
+document.getElementById("f-busca").addEventListener("input",e=>{F.busca=e.target.value;rerender();});
+document.getElementById("f-clear").addEventListener("click",()=>{Object.keys(F).forEach(k=>F[k]=(k==="bloco"?false:""));["f-sit","f-ger","f-status"].forEach(id=>document.getElementById(id).value="");document.getElementById("f-busca").value="";rerender();});
+document.querySelectorAll("#toggle button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#toggle button").forEach(x=>x.classList.remove("active"));b.classList.add("active");INSTR=b.dataset.instr;Object.keys(F).forEach(k=>F[k]=(k==="bloco"?false:""));document.getElementById("f-busca").value="";calSelDay=null;render();}));
+/* ===== GRÁFICOS (modal) ===== */
+function gbars(items){ // items: [{k,v,c}]
+  const max=Math.max(1,...items.map(i=>i.v));
+  return `<div class="gb-track">`+items.map(i=>`<div class="gb-item"><div class="gb-top"><span class="gk">${i.k}</span><span class="gv">${i.money?fmtMoneyFull(i.v):i.v}</span></div><div class="gb-outer"><div class="gb-fill" style="width:${i.v/max*100}%;background:${i.c||'var(--brand)'}"></div></div></div>`).join("")+`</div>`;
+}
+function renderGraficos(){
+  const data=records; // todos do instrumento atual
+  document.getElementById("graf-title").textContent="Gráficos — "+(INSTR==="tf"?"Termo de Fomento":"Acordo de Cooperação");
+  document.getElementById("graf-sub").textContent=data.length+" processos";
+  // por status
+  const byStatus={};data.forEach(r=>{const s=r.status||"(sem status)";byStatus[s]=(byStatus[s]||0)+1;});
+  const gStatus=Object.entries(byStatus).sort((a,b)=>b[1]-a[1]).map(([k,v])=>({k,v,c:statusColor(k)}));
+  // por situação de prazo
+  const sitOrder=["vencido","avencer","emdia","concluido"];const bySit={};sitOrder.forEach(k=>bySit[k]=0);data.forEach(r=>bySit[r.sit]++);
+  const gSit=sitOrder.map(k=>({k:SIT_META[k].l,v:bySit[k],c:SIT_META[k].c}));
+  // por gerência (na fila)
+  const gers=[...new Set(PHASES[INSTR].map(p=>p.resp))];
+  const gGer=gers.map(g=>({k:g,v:records.flatMap(r=>r.ativos.filter(p=>p.resp===g)).length,c:`var(${GER_COLOR[g]||'--brand'})`}));
+  let html='';
+  html+=`<div class="graf-panel"><h4>Processos por status</h4>${gbars(gStatus)}</div>`;
+  html+=`<div class="graf-panel"><h4>Situação dos prazos</h4>${gbars(gSit)}</div>`;
+  html+=`<div class="graf-panel"><h4>Processos por gerência (na fila)</h4>${gbars(gGer)}</div>`;
+  if(INSTR==="tf"){
+    // valor por situação de prazo
+    const valSit={};sitOrder.forEach(k=>valSit[k]=0);data.forEach(r=>valSit[r.sit]+=(r.valor||0));
+    const gVal=sitOrder.map(k=>({k:SIT_META[k].l,v:valSit[k],c:SIT_META[k].c,money:true}));
+    html+=`<div class="graf-panel"><h4>Valor por situação de prazo</h4>${gbars(gVal)}</div>`;
+  }
+  document.getElementById("graf-body").innerHTML=html;
+}
+const gm=document.getElementById("graf-modal");
+const _bg=document.getElementById("btn-graf");if(_bg)_bg.addEventListener("click",()=>{renderGraficos();gm.classList.add("show");});
+document.getElementById("graf-close").addEventListener("click",()=>gm.classList.remove("show"));
+gm.addEventListener("click",e=>{if(e.target===gm)gm.classList.remove("show");});
+
+let toastT;function toast(m){const el=document.getElementById("toast");el.textContent=m;el.className="toast show";clearTimeout(toastT);toastT=setTimeout(()=>el.className="toast",3000);}
+const rb=document.getElementById("btn-refresh");
+if((SHEET_CSV.tf&&SHEET_CSV.tf.indexOf("http")===0)||(SHEET_CSV.ac&&SHEET_CSV.ac.indexOf("http")===0)){
+  if(rb){rb.style.display="inline-block";rb.addEventListener("click",()=>loadLive(false));}
+  render(); loadLive(true);
+} else { render(); }
+</script>
+</body>
+</html>

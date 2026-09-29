@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel DIPREC — Prestação de Contas e Convênios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#144E8C;--brand-d:#0D3B6E;--gold:#B08900;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:#EAEEF3;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{background:linear-gradient(135deg,var(--brand-d),var(--brand));color:#fff;padding:10px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-bottom:3px solid var(--gold);flex-shrink:0}
+.brand{display:flex;flex-direction:column;line-height:1.1}
+.brand .eb{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#B7D0EC}
+.brand .tt{font-weight:700;font-size:16px}
+.tabs{display:flex;gap:6px;background:rgba(255,255,255,.12);border-radius:11px;padding:4px;margin-left:auto}
+.tabs button{background:none;border:none;color:#C6DBF1;font-family:'Space Grotesk';font-weight:600;font-size:14px;padding:9px 20px;border-radius:8px;cursor:pointer;white-space:nowrap;transition:all .15s}
+.tabs button.on{background:#fff;color:var(--brand-d)}
+.tabs button:hover:not(.on){color:#fff}
+.frames{flex:1;position:relative;min-height:0}
+.frames iframe{position:absolute;inset:0;width:100%;height:100%;border:none;background:#EAEEF3}
+.frames iframe.hidden{visibility:hidden;pointer-events:none}
+@media(max-width:600px){
+  .topbar{padding:9px 14px;gap:10px}
+  .brand .tt{font-size:14px}
+  .tabs{width:100%;margin-left:0}
+  .tabs button{flex:1;padding:9px 8px;font-size:13px}
+}
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <span class="eb">SES/DF · SUCONV · DIPREC</span>
+      <span class="tt">Painel DIPREC</span>
+    </div>
+    <div class="tabs" id="tabs">
+      <button data-f="diprec" class="on">Prestação de Contas</button>
+      <button data-f="convenios">Convênios</button>
+    </div>
+  </div>
+  <div class="frames">
+    <iframe id="fr-diprec" src="diprec.html" title="Prestação de Contas"></iframe>
+    <iframe id="fr-convenios" class="hidden" data-src="convenios.html" title="Convênios"></iframe>
+  </div>
+<script>
+  const tabs=document.getElementById("tabs");
+  const frames={diprec:document.getElementById("fr-diprec"),convenios:document.getElementById("fr-convenios")};
+  tabs.addEventListener("click",e=>{
+    const b=e.target.closest("button");if(!b)return;
+    const f=b.dataset.f;
+    tabs.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+    Object.entries(frames).forEach(([k,fr])=>{
+      const show=k===f;
+      if(show && !fr.src && fr.dataset.src) fr.src=fr.dataset.src; // carrega sob demanda
+      fr.classList.toggle("hidden",!show);
+    });
+  });
+</script>
+</body>
+</html>
