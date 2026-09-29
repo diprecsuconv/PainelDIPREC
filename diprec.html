@@ -383,6 +383,7 @@ let INSTR="tf",records=[];
 function isFinal(row){return String(row[ID[INSTR].status]||"").toLowerCase().includes("finaliz");}
 function fase(row){
   const st=String(row[ID[INSTR].status]||"").trim();
+  if(/suspens/i.test(st))return "suspenso";
   if(isFinal(row))return "final";
   if(st==="Em execução")return "execucao";
   if(st==="Em análise pela Diretoria de Celebração")return "celebracao";
@@ -418,18 +419,21 @@ function buildRecord(row){
     return {key:o.p.key,label:o.p.label,resp:o.p.resp,prazo,data:o.data,situacao:o.p.situacao?String(row[o.p.situacao]||""):"",ativo,...st};
   });
   const ativos=phases.filter(p=>p.ativo);
+  const suspenso=/suspens/i.test(String(row[ID[INSTR].status]||""));
   let sit;
-  if(phases.every(p=>done[p.key]))sit="concluido";
+  if(suspenso)sit="suspenso";
+  else if(phases.every(p=>done[p.key]))sit="concluido";
   else if(ativos.some(p=>p.st==="vencido"))sit="vencido";
   else if(ativos.some(p=>p.st==="avencer"))sit="avencer";
   else sit="emdia";
-  const cp=ativos.filter(p=>p.prazo&&p.st!=="aguardapar").sort((a,b)=>a.prazo-b.prazo);
+  const ativosEf=suspenso?[]:ativos; // suspenso não entra em agenda/prazos
+  const cp=ativosEf.filter(p=>p.prazo&&p.st!=="aguardapar").sort((a,b)=>a.prazo-b.prazo);
   const bloco=INSTR==="tf"&&String(row[ID.tf.bloco]||"").trim().toLowerCase()==="em bloco";
   let valor=0;if(INSTR==="tf"){valor=parseBRNumber(row[ID.tf.valor]);}
-  return {row,phases,ativos,sit,prox:cp[0]||null,bloco,valor,
+  return {row,phases,ativos:ativosEf,sit,suspenso,prox:cp[0]||null,bloco,valor,
     proc:row[ID[INSTR].proc]||"",inst:row[ID[INSTR].inst]||"",proj:row[ID[INSTR].proj]||"",status:row[ID[INSTR].status]||""};
 }
-const SIT_META={vencido:{l:"Prazo extrapolado",c:"var(--venc)"},avencer:{l:"Prazo próximo",c:"var(--aven)"},emdia:{l:"Dentro do prazo",c:"var(--dia)"},concluido:{l:"Concluído",c:"var(--conc)"}};
+const SIT_META={vencido:{l:"Prazo extrapolado",c:"var(--venc)"},avencer:{l:"Prazo próximo",c:"var(--aven)"},emdia:{l:"Dentro do prazo",c:"var(--dia)"},concluido:{l:"Concluído",c:"var(--conc)"},suspenso:{l:"Suspenso",c:"var(--ink-3)"}};
 
 /* filtros */
 const F={sit:"",ger:"",status:"",busca:"",bloco:false,fase:""};
@@ -516,6 +520,7 @@ function renderKPIs(){
 }
 
 function statusColor(s){s=s.toLowerCase();
+  if(s.includes("suspens"))return "var(--ink-3)";
   if(s.includes("finaliz")&&s.includes("aprov"))return "var(--dia)";
   if(s.includes("finaliz")&&s.includes("rejei"))return "var(--venc)";
   if(s.includes("finaliz"))return "var(--conc)";

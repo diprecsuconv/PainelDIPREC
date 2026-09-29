@@ -133,6 +133,7 @@ h1{font-family:'Space Grotesk';font-weight:700;font-size:26px;line-height:1.1}
 .t-inst{font-weight:600;font-size:12.5px;line-height:1.3}.t-sub{font-size:11px;color:var(--ink-3);margin-top:2px}
 .t-statuscell{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .t-status{font-size:11.5px;font-weight:600;line-height:1.3}
+.selo-tab{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:20px;margin-top:3px;white-space:nowrap}
 .t-exp{color:var(--ink-3);transition:transform .2s}.trow.open .t-exp{transform:rotate(180deg);color:var(--brand)}
 .chip{display:inline-flex;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
 .trow-detail{display:none;padding:6px 20px 18px;background:var(--brand-l);border-bottom:1px solid var(--line-2)}.trow-detail.show{display:block}
@@ -198,10 +199,12 @@ function shortInst(s){return norm(s).split(" - ")[0].split(" – ")[0];}
 const K={proc:"Processo",inst:"Instituição (OSC)",np:"Nº parcela",dd:"Data do desembolso",val:"Valor",lib:"Liberada?",
 nfd:"Notificação feita?",pcd:"PC parcial apresentada?",agd:"Análise GRDOC/GATEF feita?",gedd:"Consolidação GEDEN feita?",
 efDesemb:"Data do efetivo Desembolso",efNotif:"Data da notificação",efPC:"Data da PC parcial",efAnalise:"Data do relatório GRODC/GATEF"};
-function stColor(s){s=norm(s).toLowerCase();if(s.includes("execu"))return "var(--conc)";if(s.includes("celebra"))return "var(--cel)";if(s.includes("gerênc")||s.includes("gerenc")||s.includes("análise técnica")||s.includes("analise tecnica"))return "var(--pend)";if(s.includes("finaliz")||s.includes("aprova"))return "var(--geden)";if(s.includes("dilig"))return "var(--bloco)";return "var(--brand)";}
+function stColor(s){s=norm(s).toLowerCase();if(s.includes("suspens"))return "var(--ink-3)";if(s.includes("execu"))return "var(--conc)";if(s.includes("celebra"))return "var(--cel)";if(s.includes("gerênc")||s.includes("gerenc")||s.includes("análise técnica")||s.includes("analise tecnica"))return "var(--pend)";if(s.includes("finaliz")||s.includes("aprova"))return "var(--geden)";if(s.includes("dilig"))return "var(--bloco)";return "var(--brand)";}
 function done(v){const s=norm(v).toLowerCase();return ["cumprido","sim","concluído","concluido","não se aplica","nao se aplica","feito"].includes(s);}
 function getF(p,fk){if(Array.isArray(fk)){for(const k of fk){if(p[k]!=null&&norm(p[k])!=="")return p[k];}return "";}return p[fk];}
-function isBloco(c){return norm(c["Situação DIPREC"]).toLowerCase().includes("bloco");}
+function isBloco(c){return norm(c["Situação DIPREC"]).toLowerCase().includes("bloco")||norm(c["Status Atual"]).toLowerCase().includes("bloco");}
+function isDilig(c){return norm(c["Situação GRDOC"]).toLowerCase().includes("dilig")||norm(c["Situação GATEF"]).toLowerCase().includes("dilig")||norm(c["Status Atual"]).toLowerCase().includes("dilig");}
+function isSuspenso(c){return norm(c["Status Atual"]).toLowerCase().includes("suspens");}
 function parcelasDe(proc){return CR.filter(r=>norm(r[K.proc])===norm(proc)&&(pd(r[K.dd])||numVal(r[K.val])>0)).sort((a,b)=>(+a[K.np])-(+b[K.np]));}
 function libValor(proc){return parcelasDe(proc).filter(p=>done(p[K.lib])).reduce((s,p)=>s+numVal(p[K.val]),0);}
 function prevValor(proc){return parcelasDe(proc).reduce((s,p)=>s+numVal(p[K.val]),0);}
@@ -239,7 +242,7 @@ function etapaAtual(p){const dd=pd(p[K.dd]);if(!dd)return null;const np=+p[K.np]
   for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);return {etapa,resp,c,prazo,np,proc:norm(p[K.proc])};}}
   return null;
 }
-function todasEtapasAbertas(){const out=[];CR.forEach(p=>{const e=etapaAtual(p);if(e){e.inst=shortInst(p[K.inst]);e.parc=p;const c=C.find(x=>norm(x[K.proc])===e.proc);e.bloco=c?isBloco(c):false;out.push(e);}});return out;}
+function todasEtapasAbertas(){const out=[];CR.forEach(p=>{const c=C.find(x=>norm(x[K.proc])===norm(p[K.proc]));if(c&&isSuspenso(c))return;const e=etapaAtual(p);if(e){e.inst=shortInst(p[K.inst]);e.parc=p;e.bloco=c?isBloco(c):false;out.push(e);}});return out;}
 // linha do tempo completa de uma parcela
 function timelineParc(p){const dd=pd(p[K.dd]);if(!dd)return [];const np=+p[K.np];const steps=np>=3?etDef():[etDef()[4]];
   return steps.map(([etapa,resp,c,off,fk,efk])=>{const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);const fv=getF(p,fk);const cumprido=done(fv);const na=norm(fv).toLowerCase().includes("aplica");const efet=efk?pd(getF(p,efk)):null;return {etapa,resp,c,prazo,cumprido,na,off,efet};});}
@@ -247,7 +250,7 @@ function timelineParc(p){const dd=pd(p[K.dd]);if(!dd)return [];const np=+p[K.np]
 let prazoBucket="",pcfBucket="";
 const F={status:"",statusKw:"",parl:"",busca:"",mgmt:""};
 function isFiltered(){return !!(F.status||F.statusKw||F.parl||F.busca||F.mgmt);}
-function convExtrapolado(c){return parcelasDe(c[K.proc]).some(p=>{const e=etapaAtual(p);return e&&e.etapa!=="Desembolso"&&e.prazo<HOJE;});}
+function convExtrapolado(c){if(isSuspenso(c))return false;return parcelasDe(c[K.proc]).some(p=>{const e=etapaAtual(p);return e&&e.etapa!=="Desembolso"&&e.prazo<HOJE;});}
 function filtered(){const q=F.busca.toLowerCase().trim();
   return C.filter(c=>{
     if(F.status&&norm(c["Status Atual"])!==F.status)return false;
@@ -428,16 +431,20 @@ function detail(c){const P=parcelasDe(c[K.proc]);
   const dados=[di("Processo",c[K.proc]),di("Parlamentar",c["Parlamentar"]),di("Emenda",c["Emenda"]),di("Instrumento",c["Instrumento"]),di("Projeto",c["Projeto"],true),di("Valor",moneyF(c["Valor do convênio"])),di("Status atual",c["Status Atual"]),di("Situação DIPREC",c["Situação DIPREC"])].filter(Boolean).join("");
   const prazos=[diD("Encerramento execução",c["Encerramento da execução"]),diD("Relatório OSC (prazo)",c["Relatório OSC - Data Prazo"]),diD("Parecer comissão (prazo)",c["Parecer comissão - Data Prazo"]),diD("GRDOC (prazo)",c["GRDOC - Data Prazo"]),diD("GATEF (prazo)",c["GATEF - Data Prazo"]),diD("Consolidação DIPREC (prazo)",c["DIPREC - Data Prazo"]||c["GEDEN - Data Prazo"])].filter(Boolean).join("");
   const tot=[di("Total previsto",moneyF(prevValor(c[K.proc]))),di("Já desembolsado",moneyF(libValor(c[K.proc]))),di("Saldo a liberar",moneyF(prevValor(c[K.proc])-libValor(c[K.proc]))),di("Parcelas",String(P.length))].join("");
+  const sit=[di("Situação GRDOC",c["Situação GRDOC"]),di("Situação GATEF",c["Situação GATEF"]),di("Situação GEDEN",c["Situação GEDEN"]),di("Situação DIPREC",c["Situação DIPREC"])].filter(Boolean).join("");
+  const obs=[di("Obs. GRDOC",c["Observações GRDOC"],true),di("Obs. GATEF",c["Observações GATEF"],true),di("Obs. GEDEN",c["Observações GEDEN"],true),di("Obs. DIPREC",c["Observações DIPREC"],true),di("Tramitação / andamento",c["Tramitação"]||c["Andamento / Tramitação"],true)].filter(Boolean).join("");
   let h=`<div class="det-sec">Dados</div><div class="det-grid">${dados}</div>`;
   if(prazos)h+=`<div class="det-sec">Prazos das fases</div><div class="det-grid">${prazos}</div>`;
   h+=`<div class="det-sec">Desembolso</div><div class="det-grid">${tot}</div>`;
+  if(sit)h+=`<div class="det-sec">Situação das gerências</div><div class="det-grid">${sit}</div>`;
+  if(obs)h+=`<div class="det-sec">Observações</div><div class="det-grid">${obs}</div>`;
   return `<div class="trow-detail"><div style="padding-top:6px">${h}</div></div>`;
 }
 function renderTable(data){const el=document.getElementById("table");
   if(!data.length){el.innerHTML=`<div class="table-empty">Nenhum convênio encontrado.</div>`;document.getElementById("tbl-count").textContent=`0 de ${C.length}`;return;}
   let html=`<div class="tbl-head"><span>Processo</span><span>Instituição / Projeto</span><span>Parlamentar</span><span>Valor</span><span>Status</span></div>`;
   data.forEach(c=>{const sc=stColor(c["Status Atual"]);
-    html+=`<div class="trow"><div class="t-proc">${norm(c[K.proc])}</div><div><div class="t-inst">${shortInst(c[K.inst])}</div><div class="t-sub">${norm(c["Projeto"])||""}</div></div><div style="font-size:12px">${norm(c["Parlamentar"])||"—"}</div><div class="bv">${moneyF(c["Valor do convênio"])}</div><div class="t-statuscell"><span class="t-status" style="color:${sc}">${norm(c["Status Atual"])}</span><span class="t-exp">⌄</span></div></div>`+detail(c);
+    html+=`<div class="trow"><div class="t-proc">${norm(c[K.proc])}</div><div><div class="t-inst">${shortInst(c[K.inst])}</div><div class="t-sub">${norm(c["Projeto"])||""}</div></div><div style="font-size:12px">${norm(c["Parlamentar"])||"—"}</div><div class="bv">${moneyF(c["Valor do convênio"])}</div><div class="t-statuscell"><span class="t-status" style="color:${sc}">${norm(c["Status Atual"])}${isBloco(c)?' <span class="selo-tab" style="background:var(--bloco-l);color:var(--bloco)">em bloco</span>':''}${isDilig(c)?' <span class="selo-tab" style="background:var(--cel-l);color:var(--cel)">em diligência</span>':''}</span><span class="t-exp">⌄</span></div></div>`+detail(c);
   });
   html+=`<div class="tbl-foot">${data.length} de ${C.length} convênios</div>`;el.innerHTML=html;
   document.getElementById("tbl-count").textContent=`${data.length} de ${C.length}`;
