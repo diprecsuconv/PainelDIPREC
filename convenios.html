@@ -202,7 +202,11 @@ efDesemb:"Data do efetivo Desembolso",efNotif:"Data da notificação",efPC:"Data
 function stColor(s){s=norm(s).toLowerCase();if(s.includes("suspens"))return "var(--ink-3)";if(s.includes("execu"))return "var(--conc)";if(s.includes("celebra"))return "var(--cel)";if(s.includes("gerênc")||s.includes("gerenc")||s.includes("análise técnica")||s.includes("analise tecnica"))return "var(--pend)";if(s.includes("finaliz")||s.includes("aprova"))return "var(--geden)";if(s.includes("dilig"))return "var(--bloco)";return "var(--brand)";}
 function done(v){const s=norm(v).toLowerCase();return ["cumprido","sim","concluído","concluido","não se aplica","nao se aplica","feito"].includes(s);}
 function getF(p,fk){if(Array.isArray(fk)){for(const k of fk){if(p[k]!=null&&norm(p[k])!=="")return p[k];}return "";}return p[fk];}
-function isBloco(c){for(const k in c){if(norm(c[k]).toLowerCase().includes("bloco"))return true;}return false;}
+function isBloco(c){
+  for(const k in c){if(norm(c[k]).toLowerCase().includes("bloco"))return true;}
+  // também procura nas parcelas do cronograma deste convênio
+  return CR.some(p=>norm(p[K.proc])===norm(c[K.proc]) && Object.keys(p).some(k=>norm(p[k]).toLowerCase().includes("bloco")));
+}
 function isDilig(c){for(const k in c){const kk=k.toLowerCase();if((kk.includes("situa")||kk.includes("status"))&&norm(c[k]).toLowerCase().includes("dilig"))return true;}return false;}
 function isSuspenso(c){return norm(c["Status Atual"]).toLowerCase().includes("suspens");}
 function parcelasDe(proc){return CR.filter(r=>norm(r[K.proc])===norm(proc)&&(pd(r[K.dd])||numVal(r[K.val])>0)).sort((a,b)=>(+a[K.np])-(+b[K.np]));}
@@ -238,15 +242,14 @@ function resolveKeys(){const p=CR[0]||{};
   K.efAnalise=findKey(p,["data","relat"])||K.efAnalise;
 }
 function sitDoPasso(p,etapa){
-  // texto de "situação atual" da parcela conforme a etapa (para mostrar diligência etc.)
   let v="";
-  if(etapa.indexOf("Análise")===0){v=p["Situação atual GRDOC/GATEF"]||p[findKey(p,["situa","grdoc"])||""]||p[findKey(p,["situa","atual"])||""]||"";}
-  else if(etapa.indexOf("Consolidação")===0){v=p["Situação atual DIPREC"]||p[findKey(p,["situa","diprec"])||""]||"";}
+  if(etapa.indexOf("Análise")===0){v=p[findKey(p,["situa","grdoc"])||""]||p[findKey(p,["situa","gatef"])||""]||"";}
+  else if(etapa.indexOf("Consolidação")===0||etapa.indexOf("DIPREC")>=0){v=p[findKey(p,["situa","diprec"])||""]||"";}
   return norm(v);
 }
 function etapaAtual(p){const dd=pd(p[K.dd]);if(!dd)return null;const np=+p[K.np];
   const steps=np>=3?etDef():[etDef()[4]];
-  for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);const sit=sitDoPasso(p,etapa);return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sit.toLowerCase().includes("dilig")};}}
+  for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);const sit=sitDoPasso(p,etapa);const sl=sit.toLowerCase();return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sl.includes("dilig"),bloco:sl.includes("bloco")};}}
   return null;
 }
 function todasEtapasAbertas(){const out=[];CR.forEach(p=>{const c=C.find(x=>norm(x[K.proc])===norm(p[K.proc]));if(c&&isSuspenso(c))return;const e=etapaAtual(p);if(e){e.inst=shortInst(p[K.inst]);e.parc=p;e.bloco=c?isBloco(c):false;out.push(e);}});return out;}
@@ -329,7 +332,7 @@ function renderAgenda(){
   const item=e=>`<div class="ag-item" data-open="0"><div class="ag-date"><div class="d">${String(e.prazo.getDate()).padStart(2,"0")}</div><div class="m">${MES[e.prazo.getMonth()]}/${String(e.prazo.getFullYear()).slice(2)}</div></div>
     <div class="ag-body"><div class="ag-inst">${e.inst} <span class="ag-parc">· ${e.np}ª parcela</span> <span class="ag-exp">⌄</span></div>
     <div class="ag-proc">${e.proc}</div>
-    <div class="ag-meta"><span class="etag" style="background:${e.c}">${e.etapa}</span>${e.dilig?'<span class="blocotag" style="background:var(--cel-l);color:var(--cel)">em diligência</span>':''}${badge(e.prazo)}${e.bloco?'<span class="blocotag">em bloco</span>':''}</div>
+    <div class="ag-meta"><span class="etag" style="background:${e.c}">${e.etapa}</span>${e.sit?`<span class="blocotag" style="background:${e.bloco?'var(--bloco-l)':e.dilig?'var(--cel-l)':'var(--surface-2)'};color:${e.bloco?'var(--bloco)':e.dilig?'var(--cel)':'var(--ink-2)'}">${e.sit}</span>`:''}${badge(e.prazo)}${e.bloco?'<span class="blocotag">em bloco</span>':''}</div>
     <div class="ag-detail">${tl(e)}</div></div></div>`;
   let html=`<div class="prazo-chips">`+Object.entries(B).map(([k,b])=>`<div class="pchip ${prazoBucket===k?'active':''}" data-b="${k}" style="--pc:${b.c}"><span class="pcn">${b.its.length}</span><span class="pcl">${b.l}</span></div>`).join("")+`</div>`;
   const its=[...B[prazoBucket].its].sort((a,b)=>a.prazo-b.prazo);
@@ -416,7 +419,15 @@ function cronCards(){const el=document.getElementById("cron-cards");const com=fi
   document.getElementById("cron-cnt").textContent=`${com.length} convênios com parcelas`;
   el.innerHTML=com.map(c=>{const proc=c[K.proc];const ps=parcelasDe(proc);const prev=prevValor(proc);const lib=libValor(proc);const pct=prev?Math.round(lib/prev*100):0;const sc=stColor(c["Status Atual"]);
     const parc=ps.map((p,pi)=>{const isLib=done(p[K.lib]);const dd=pd(p[K.dd]);const e=etapaAtual(p);
-      let badge=isLib?`<span class="parc-badge" style="background:var(--conc-l);color:var(--conc)">liberada</span>`:(e&&+p[K.np]>=3?(e.dilig?`<span class="parc-badge" style="background:var(--cel-l);color:var(--cel)">em diligência</span>`:`<span class="parc-badge" style="background:var(--pend-l);color:var(--pend)">${e.etapa.split(" ")[0]}</span>`):"");
+      let sitTxt=e?e.sit:"";
+      let badge;
+      if(isLib)badge=`<span class="parc-badge" style="background:var(--conc-l);color:var(--conc)">liberada</span>`;
+      else if(e&&+p[K.np]>=3){
+        if(sitTxt){const dl=sitTxt.toLowerCase().includes("dilig"),bl=sitTxt.toLowerCase().includes("bloco");
+          const bg=bl?"var(--bloco-l)":dl?"var(--cel-l)":"var(--pend-l)";const cl=bl?"var(--bloco)":dl?"var(--cel)":"var(--pend)";
+          badge=`<span class="parc-badge" style="background:${bg};color:${cl}">${sitTxt}</span>`;}
+        else badge=`<span class="parc-badge" style="background:var(--pend-l);color:var(--pend)">${e.etapa.split(" ")[0]}</span>`;
+      } else badge="";
       return `<div class="parc ${isLib?'lib':''}" data-proc="${proc}" data-np="${p[K.np]}"><div class="parc-n">${p[K.np]}ª parcela</div><div class="parc-v">${moneyF(p[K.val])}</div><div class="parc-d">${dd?fmtBR(dd):"sem data"}</div>${badge}</div>`;}).join("");
     return `<div class="conv-card"><div class="cc-head"><div><div class="cc-inst">${shortInst(c[K.inst])}</div>${norm(c["Projeto"])?`<div class="cc-proj">${norm(c["Projeto"])}</div>`:""}<div class="cc-proc">${proc}</div></div><span class="cc-status" style="background:${sc}1f;color:${sc}">${norm(c["Status Atual"])}${isBloco(c)?' · em bloco':''}</span></div>
       <div class="cc-money"><div><div class="m">Valor</div><div class="mv">${moneyF(c["Valor do convênio"])}</div></div><div><div class="m">Desembolsado</div><div class="mv" style="color:var(--conc)">${moneyF(lib)}</div></div><div><div class="m">Previsto</div><div class="mv">${moneyF(prev)}</div></div></div>
