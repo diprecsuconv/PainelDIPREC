@@ -379,7 +379,7 @@ function parseDate(v){
 function days(a,b){return Math.round((a-b)/86400000);}
 function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function fmtMoney(n){if(!n)return "—";if(n>=1e6)return "R$ "+(n/1e6).toFixed(1).replace(".",",")+" mi";if(n>=1e3)return "R$ "+(n/1e3).toFixed(0)+" mil";return "R$ "+n.toFixed(0);}
-function fmtMoneyFull(n){return "R$ "+n.toLocaleString("pt-BR",{maximumFractionDigits:0});}
+function fmtMoneyFull(n){return "R$ "+Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
 let INSTR="tf",records=[];
 function isFinal(row){return String(row[ID[INSTR].status]||"").toLowerCase().includes("finaliz");}
 function fase(row){
@@ -485,7 +485,7 @@ function renderKPIs(){
   const valorTag=noFilter?"soma dos termos":"nesta seleção";
   let cards=[{n:total,l:"Processos",tag:"ver todos",c:"var(--brand)",act:"all",active:noFilter}];
   if(INSTR==="tf"){
-    cards.push({n:fmtMoney(valor),l:"Valor acompanhado",tag:valorTag,c:"var(--gold)",money:true});
+    cards.push({n:fmtMoneyFull(valor),l:"Valor acompanhado",tag:valorTag,c:"var(--gold)",money:true});
     cards.push({n:exec,l:"Em execução",tag:"objeto em andamento",c:"var(--g-com)",act:"fase-execucao",active:F.fase==="execucao"});
     cards.push({n:pc,l:"Em prestação de contas",tag:"após a execução",c:"var(--aven)",act:"fase-pc",active:F.fase==="pc"});
     cards.push({n:fin,l:"Finalizados",tag:"tramitação concluída",c:"var(--conc)",act:"fase-final",active:F.fase==="final"});
