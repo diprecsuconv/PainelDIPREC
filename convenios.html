@@ -114,6 +114,11 @@ h1{font-family:'Space Grotesk';font-weight:700;font-size:26px;line-height:1.1}
 .parc-detail{display:none;margin-top:12px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:12px 14px}
 .parc-detail.show{display:block}
 .pd-title{font-family:'Space Grotesk';font-weight:600;font-size:13px;margin-bottom:8px}
+.pd-suspensa{background:#EEF1F5;border:1px solid #CBD3DE;border-radius:10px;padding:12px 14px;font-size:12.5px;color:#4A576A}
+.pd-ato-box{margin-top:10px;padding-top:10px;border-top:1px dashed #CBD3DE}
+.pd-ato-box .pd-l{display:block;margin-bottom:3px}
+.pd-ato-box div{font-size:12.5px;color:var(--ink);font-weight:500}
+.pd-ato-vazio{margin-top:8px;font-size:11.5px;color:var(--ink-3);font-style:italic}
 .pd-info{display:flex;gap:22px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-2)}
 .pd-info>div{display:flex;flex-direction:column}
 .pd-l{font-size:10px;text-transform:uppercase;color:var(--ink-3);font-weight:700}
@@ -362,8 +367,13 @@ function tlHTML(p){const steps=timelineParc(p);const ddx=x=>Math.round((x-HOJE)/
     else {ic="○";cls="wait";extra=`faltam ${n} ${n===1?'dia':'dias'}`;}
     return `<div class="tl-step ${cls}"><span class="tl-ic">${ic}</span><span class="tl-et">${s.etapa}</span><span class="tl-dt">data limite ${fmtBR(s.prazo)}</span><span class="tl-ex">${extra}</span></div>`;}).join("")+`</div>`;}
 function parcDetail(p){const dd=pd(p[K.dd]);
+  const suspensa=norm(p[K.lib]).toLowerCase().includes("suspens");
+  const ato=norm(p[findKey(p,["ato","suspensiv"])||""]);
   const info=`<div class="pd-info"><div><span class="pd-l">Valor da parcela</span><span class="pd-v">${moneyF(p[K.val])}</span></div><div><span class="pd-l">Data do desembolso</span><span class="pd-v">${dd?fmtBR(dd):"sem data"}</span></div><div><span class="pd-l">Liberada?</span><span class="pd-v">${norm(p[K.lib])||"—"}</span></div></div>`;
-  return `<div class="pd-title">Etapas da ${+p[K.np]}ª parcela</div>${tlHTML(p)}${info}`;}
+  const corpo = suspensa
+    ? `<div class="pd-suspensa">⏸ <b>Parcela suspensa</b> — prazos congelados.${ato?`<div class="pd-ato-box"><span class="pd-l">Ato suspensivo</span><div>${ato}</div></div>`:`<div class="pd-ato-vazio">Sem ato suspensivo informado.</div>`}</div>`
+    : tlHTML(p);
+  return `<div class="pd-title">Etapas da ${+p[K.np]}ª parcela</div>${corpo}${info}`;}
 /* ===== PRESTAÇÃO DE CONTAS FINAL ===== */
 function cget(c,exact,kws){for(const k in c){if(norm(k).toLowerCase()===exact)return c[k];}const kk=findKey(c,kws);return kk!=null?c[kk]:"";}
 function encData(c){return pd(cget(c,"encerramento da execução",["encerr"]));}
