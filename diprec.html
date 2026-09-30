@@ -170,6 +170,7 @@ h1{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:27px;letter-
 .sit-vencido{background:var(--venc-l);color:var(--venc)}.sit-avencer{background:var(--aven-l);color:var(--aven)}
 .sit-emdia{background:var(--dia-l);color:var(--dia)}.sit-concluido{background:var(--conc-l);color:var(--conc)}
 .sit-suspenso{background:#4A576A;color:#fff}
+.sit-encerrado{background:var(--venc);color:#fff}
 .prox{font-family:'IBM Plex Mono';font-size:12px}.prox small{color:var(--ink-3)}
 .trow-detail{display:none;padding:6px 20px 18px;background:var(--brand-l);border-bottom:1px solid var(--line-2)}
 .trow-detail.show{display:block}
@@ -385,6 +386,7 @@ function isFinal(row){return String(row[ID[INSTR].status]||"").toLowerCase().inc
 function fase(row){
   const st=String(row[ID[INSTR].status]||"").trim();
   if(/suspens/i.test(st))return "suspenso";
+  if(/rescis|encerrado por/i.test(st))return "final";
   if(isFinal(row))return "final";
   if(st==="Em execução")return "execucao";
   if(st==="Em análise pela Diretoria de Celebração")return "celebracao";
@@ -420,21 +422,25 @@ function buildRecord(row){
     return {key:o.p.key,label:o.p.label,resp:o.p.resp,prazo,data:o.data,situacao:o.p.situacao?String(row[o.p.situacao]||""):"",ativo,...st};
   });
   const ativos=phases.filter(p=>p.ativo);
-  const suspenso=/suspens/i.test(String(row[ID[INSTR].status]||""));
+  const st0=String(row[ID[INSTR].status]||"");
+  const suspenso=/suspens/i.test(st0);
+  const rescindido=/rescis|encerrado por/i.test(st0);
+  const congelado=suspenso||rescindido;
   let sit;
-  if(suspenso)sit="suspenso";
+  if(rescindido)sit="encerrado";
+  else if(suspenso)sit="suspenso";
   else if(phases.every(p=>done[p.key]))sit="concluido";
   else if(ativos.some(p=>p.st==="vencido"))sit="vencido";
   else if(ativos.some(p=>p.st==="avencer"))sit="avencer";
   else sit="emdia";
-  const ativosEf=suspenso?[]:ativos; // suspenso não entra em agenda/prazos
+  const ativosEf=congelado?[]:ativos; // suspenso/encerrado não entra em agenda/prazos
   const cp=ativosEf.filter(p=>p.prazo&&p.st!=="aguardapar").sort((a,b)=>a.prazo-b.prazo);
   const bloco=INSTR==="tf"&&String(row[ID.tf.bloco]||"").trim().toLowerCase()==="em bloco";
   let valor=0;if(INSTR==="tf"){valor=parseBRNumber(row[ID.tf.valor]);}
-  return {row,phases,ativos:ativosEf,sit,suspenso,prox:cp[0]||null,bloco,valor,
+  return {row,phases,ativos:ativosEf,sit,suspenso,rescindido,congelado,prox:cp[0]||null,bloco,valor,
     proc:row[ID[INSTR].proc]||"",inst:row[ID[INSTR].inst]||"",proj:row[ID[INSTR].proj]||"",status:row[ID[INSTR].status]||""};
 }
-const SIT_META={vencido:{l:"Prazo extrapolado",c:"var(--venc)"},avencer:{l:"Prazo próximo",c:"var(--aven)"},emdia:{l:"Dentro do prazo",c:"var(--dia)"},concluido:{l:"Concluído",c:"var(--conc)"},suspenso:{l:"Suspenso",c:"var(--ink-3)"}};
+const SIT_META={vencido:{l:"Prazo extrapolado",c:"var(--venc)"},avencer:{l:"Prazo próximo",c:"var(--aven)"},emdia:{l:"Dentro do prazo",c:"var(--dia)"},concluido:{l:"Concluído",c:"var(--conc)"},suspenso:{l:"Suspenso",c:"var(--ink-3)"},encerrado:{l:"Encerrado",c:"var(--venc)"}};
 
 /* filtros */
 const F={sit:"",ger:"",status:"",busca:"",bloco:false,fase:""};
@@ -521,6 +527,7 @@ function renderKPIs(){
 }
 
 function statusColor(s){s=s.toLowerCase();
+  if(s.includes("rescis")||s.includes("encerrado por"))return "var(--venc)";
   if(s.includes("suspens"))return "var(--ink-3)";
   if(s.includes("finaliz")&&s.includes("aprov"))return "var(--dia)";
   if(s.includes("finaliz")&&s.includes("rejei"))return "var(--venc)";
@@ -621,12 +628,12 @@ function phaseDetail(r,i){
     return `<div class="ph-row"><div class="ph-name"><span class="gdot" style="background:${gc}"></span>${p.label}</div><div><div class="ph-lbl">Prazo</div><div class="ph-val">${fmtD(p.prazo)}</div></div><div><div class="ph-lbl">Situação</div><span class="sit" style="background:transparent;color:${c};padding-left:0">${t}</span></div><div class="ph-extra">${extra||'<span style="color:var(--ink-3)">—</span>'}</div></div>`;}).join("");
   const obs=OBS[INSTR].map(k=>{const v=r.row[k];return v&&String(v).trim()&&String(v).toLowerCase()!=="não se aplica"?`<b>${k.replace('Observações ','')}:</b> ${v}`:"";}).filter(Boolean).join("<br>");
   const and=r.row[ID[INSTR].andamento];
-  return `<div class="trow-detail" data-idx="${i}">${r.suspenso?'<div class="det-obs" style="background:#EEF1F5;border-color:#CBD3DE"><div class="det-obs-txt" style="color:#4A576A;font-weight:600">⏸ Processo suspenso — os prazos das etapas estão congelados enquanto durar a suspensão.</div></div>':`<div class="ph-track">${rows}</div>`}${(and||obs)?`<div class="det-obs"><div class="ph-lbl">Andamento / observações</div><div class="det-obs-txt">${[and?String(and):"",obs].filter(Boolean).join("<br>")}</div></div>`:''}</div>`;
+  return `<div class="trow-detail" data-idx="${i}">${r.congelado?`<div class="det-obs" style="background:#EEF1F5;border-color:#CBD3DE"><div class="det-obs-txt" style="color:#4A576A;font-weight:600">${r.rescindido?'⛔ Convênio/processo encerrado por rescisão — prazos das etapas encerrados.':'⏸ Processo suspenso — os prazos das etapas estão congelados enquanto durar a suspensão.'}</div></div>`:`<div class="ph-track">${rows}</div>`}${(and||obs)?`<div class="det-obs"><div class="ph-lbl">Andamento / observações</div><div class="det-obs-txt">${[and?String(and):"",obs].filter(Boolean).join("<br>")}</div></div>`:''}</div>`;
 }
 function renderTable(data){
   const el=document.getElementById("table");
   if(!data.length){el.innerHTML=`<div class="table-empty"><b>Nenhum processo encontrado</b>Ajuste os filtros.</div>`;return;}
-  data.sort((a,b)=>{const rk={vencido:0,avencer:1,emdia:2,concluido:3,suspenso:4};if((rk[a.sit]??9)!==(rk[b.sit]??9))return (rk[a.sit]??9)-(rk[b.sit]??9);if(a.prox&&b.prox)return a.prox.prazo-b.prox.prazo;if(a.prox)return -1;if(b.prox)return 1;return 0;});
+  data.sort((a,b)=>{const rk={vencido:0,avencer:1,emdia:2,concluido:3,suspenso:4,encerrado:5};if((rk[a.sit]??9)!==(rk[b.sit]??9))return (rk[a.sit]??9)-(rk[b.sit]??9);if(a.prox&&b.prox)return a.prox.prazo-b.prox.prazo;if(a.prox)return -1;if(b.prox)return 1;return 0;});
   const head=INSTR==="tf"?`<div class="tbl-head tf-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Gerência</span><span>Situação</span><span>Status</span></div>`
     :`<div class="tbl-head ac-cols"><span>Processo</span><span>Instituição / projeto</span><span>Próximo prazo</span><span>Situação</span><span>Status</span></div>`;
   let html=head;
