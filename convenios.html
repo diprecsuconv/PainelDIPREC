@@ -223,6 +223,13 @@ function isDilig(c){
 }
 function isSuspenso(c){const s=norm(c["Status Atual"]).toLowerCase();return s.includes("suspens")||s.includes("rescis")||s.includes("encerrado");}
 function parcelasDe(proc){return CR.filter(r=>norm(r[K.proc])===norm(proc)&&(pd(r[K.dd])||numVal(r[K.val])>0)).sort((a,b)=>(+a[K.np])-(+b[K.np]));}
+function parcSuspensa(p){
+  // procura "suspens" na coluna Liberada? OU em qualquer coluna com "liberad"/"situação" da parcela
+  if(norm(p[K.lib]).toLowerCase().includes("suspens"))return true;
+  for(const k in p){const kk=k.toLowerCase();if((kk.includes("liberad")||kk.includes("situa")||kk.includes("desembols"))&&norm(p[k]).toLowerCase().includes("suspens"))return true;}
+  return false;
+}
+function atoSuspensivo(p){return norm(p[findKey(p,["ato","suspensiv"])||""]||p[findKey(p,["ato"])||""]);}
 function isLiberada(p){return done(p[K.lib])||!!pd(p[K.efDesemb]);}
 function libValor(proc){return parcelasDe(proc).filter(isLiberada).reduce((s,p)=>s+numVal(p[K.val]),0);}
 function prevValor(proc){return parcelasDe(proc).reduce((s,p)=>s+numVal(p[K.val]),0);}
@@ -262,7 +269,7 @@ function sitDoPasso(p,etapa){
   return norm(v);
 }
 function etapaAtual(p){const dd=pd(p[K.dd]);if(!dd)return null;const np=+p[K.np];
-  if(norm(p[K.lib]).toLowerCase().includes("suspens"))return null; // parcela suspensa congela
+  if(parcSuspensa(p))return null; // parcela suspensa congela
   const steps=np>=3?etDef():[etDef()[4]];
   for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);let sit=sitDoPasso(p,etapa);if(/n[ãa]o se aplica/i.test(sit))sit="";const sl=sit.toLowerCase();return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sl.includes("dilig"),bloco:ehBloco(sit)};}}
   return null;
@@ -367,8 +374,8 @@ function tlHTML(p){const steps=timelineParc(p);const ddx=x=>Math.round((x-HOJE)/
     else {ic="○";cls="wait";extra=`faltam ${n} ${n===1?'dia':'dias'}`;}
     return `<div class="tl-step ${cls}"><span class="tl-ic">${ic}</span><span class="tl-et">${s.etapa}</span><span class="tl-dt">data limite ${fmtBR(s.prazo)}</span><span class="tl-ex">${extra}</span></div>`;}).join("")+`</div>`;}
 function parcDetail(p){const dd=pd(p[K.dd]);
-  const suspensa=norm(p[K.lib]).toLowerCase().includes("suspens");
-  const ato=norm(p[findKey(p,["ato","suspensiv"])||""]);
+  const suspensa=parcSuspensa(p);
+  const ato=atoSuspensivo(p);
   const info=`<div class="pd-info"><div><span class="pd-l">Valor da parcela</span><span class="pd-v">${moneyF(p[K.val])}</span></div><div><span class="pd-l">Data do desembolso</span><span class="pd-v">${dd?fmtBR(dd):"sem data"}</span></div><div><span class="pd-l">Liberada?</span><span class="pd-v">${norm(p[K.lib])||"—"}</span></div></div>`;
   const corpo = suspensa
     ? `<div class="pd-suspensa">⏸ <b>Parcela suspensa</b> — prazos congelados.${ato?`<div class="pd-ato-box"><span class="pd-l">Ato suspensivo</span><div>${ato}</div></div>`:`<div class="pd-ato-vazio">Sem ato suspensivo informado.</div>`}</div>`
@@ -439,8 +446,8 @@ function cronCards(){const el=document.getElementById("cron-cards");const com=fi
   document.getElementById("cron-cnt").textContent=`${com.length} convênios com parcelas`;
   el.innerHTML=com.map(c=>{const proc=c[K.proc];const ps=parcelasDe(proc);const prev=prevValor(proc);const lib=libValor(proc);const pct=prev?Math.round(lib/prev*100):0;const sc=stColor(c["Status Atual"]);
     const parc=ps.map((p,pi)=>{const isLib=isLiberada(p);const dd=pd(p[K.dd]);const e=etapaAtual(p);
-      const libTxt=norm(p[K.lib]).toLowerCase();const suspensa=libTxt.includes("suspens");
-      const ato=norm(p[findKey(p,["ato","suspensiv"])||""]);
+      const suspensa=parcSuspensa(p);
+      const ato=atoSuspensivo(p);
       let sitTxt=e?e.sit:"";
       if(/n[ãa]o se aplica/i.test(sitTxt))sitTxt="";
       let badge;
