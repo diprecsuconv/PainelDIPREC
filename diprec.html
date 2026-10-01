@@ -395,27 +395,30 @@ function fase(row){
 function phaseStatus(prazo){if(!prazo)return {st:"semprazo"};const d=days(prazo,HOJE);if(prazo<HOJE)return {st:"vencido",dias:days(HOJE,prazo)};if(d<=30)return {st:"avencer",dias:d};return {st:"noprazo",dias:d};}
 
 function buildRecord(row){
-  const phs=PHASES[INSTR],done={},objs=[];
+  const phs=PHASES[INSTR],done={},resolv={},objs=[];
   phs.forEach(p=>{
     const cumpr=String(row[p.cumprido]||"").trim().toUpperCase();
     const data=p.data?parseDate(row[p.data]):null;
     let isDone=(cumpr==="SIM")||(!!data),isNa=(cumpr==="NÃO SE APLICA"||cumpr==="NAO SE APLICA");
+    const isNao=(cumpr==="NÃO"||cumpr==="NAO");
     if(p.key==="diprec"&&INSTR==="tf"){if(isFinal(row)||String(row[ID.tf.relFinal]||"").trim())isDone=true;}
-    done[p.key]=isDone||isNa;objs.push({p,cumpr,data,isDone,isNa});
+    done[p.key]=isDone||isNa;               // concluída positivamente (p/ "concluído")
+    resolv[p.key]=isDone||isNa||isNao;      // decidida (SIM, NÃO ou N/A) -> libera a próxima
+    objs.push({p,cumpr,data,isDone,isNa,isNao});
   });
   // etapa técnica conjunta (GRDOC + GATEF entregam juntas)
   const temTecnica=("grdoc" in done)&&("gatef" in done);
-  const tecnicaDone=temTecnica?(done.grdoc&&done.gatef):true;
+  const tecnicaDone=temTecnica?(resolv.grdoc&&resolv.gatef):true;
   const phases=objs.map(o=>{
-    let predsDone=o.p.preds.every(k=>done[k]);
+    let predsDone=o.p.preds.every(k=>resolv[k]);   // libera quando a anterior foi DECIDIDA
     let effDone=o.isDone;
-    // GRDOC/GATEF: enquanto a dupla não terminou, a gerência segue "ativa" mesmo que já tenha entregue a sua parte
     if((o.p.key==="grdoc"||o.p.key==="gatef")&&temTecnica&&!tecnicaDone){ effDone=false; }
-    const pending=!effDone&&!o.isNa;
+    const pending=!o.isDone&&!o.isNa&&!o.isNao;      // ainda sem decisão
     const ativo=pending&&predsDone;
     const prazo=parseDate(row[o.p.prazo]);let st;
-    if(o.isNa)st={st:"na"};
-    else if((o.p.key==="grdoc"||o.p.key==="gatef")&&temTecnica&&!tecnicaDone&&o.isDone) st={st:"aguardapar"}; // já entregou, aguardando a outra
+    if(o.isNao)st={st:"naoentregue"};               // decidiu NÃO -> mostra "não entregue", não trava
+    else if(o.isNa)st={st:"na"};
+    else if((o.p.key==="grdoc"||o.p.key==="gatef")&&temTecnica&&!tecnicaDone&&o.isDone) st={st:"aguardapar"};
     else if(o.isDone)st={st:"cumprido"};
     else if(ativo)st=phaseStatus(prazo);
     else st={st:"aguardando"};
@@ -622,6 +625,7 @@ function fmtD(d){return d?`${String(d.getDate()).padStart(2,'0')}/${String(d.get
 function phaseDetail(r,i){
   const rows=r.phases.map(p=>{const gc=`var(${GER_COLOR[p.resp]||'--brand'})`;let t,c;
     if(p.st==="cumprido"){t="Cumprido";c="var(--dia)";}else if(p.st==="na"){t="Não se aplica";c="var(--na)";}
+    else if(p.st==="naoentregue"){t="Não entregue";c="var(--venc)";}
     else if(p.st==="vencido"){t=`Prazo extrapolado (${p.dias}d)`;c="var(--venc)";}else if(p.st==="avencer"){t=`Vence em ${p.dias}d`;c="var(--aven)";}
     else if(p.st==="noprazo"){t=`No prazo (${p.dias}d)`;c="var(--dia)";}else if(p.st==="aguardapar"){t="Entregou — aguardando a outra gerência";c="var(--dia)";}else if(p.st==="aguardando"){t="Aguardando etapa anterior";c="var(--sem)";}else{t="Sem prazo";c="var(--sem)";}
     const extra=[p.data?`concluído ${fmtD(p.data)}`:"",p.situacao||""].filter(Boolean).join(" · ");
