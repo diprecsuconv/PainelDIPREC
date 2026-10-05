@@ -449,11 +449,13 @@ function cronCards(){const el=document.getElementById("cron-cards");const com=fi
   el.innerHTML=com.map(c=>{const proc=c[K.proc];const ps=parcelasDe(proc);const prev=prevValor(proc);const lib=libValor(proc);const pct=prev?Math.round(lib/prev*100):0;const sc=stColor(c["Status Atual"]);
     const parc=ps.map((p,pi)=>{const isLib=isLiberada(p);const dd=pd(p[K.dd]);const e=etapaAtual(p);
       const suspensa=parcSuspensa(p);
+      const congelada=!suspensa&&congeladaPorSusp(p);
       const ato=atoSuspensivo(p);
       let sitTxt=e?e.sit:"";
       if(/n[ãa]o se aplica/i.test(sitTxt))sitTxt="";
       let badge;
       if(suspensa)badge=`<span class="parc-badge" style="background:#E1E5EB;color:#4A576A">suspensa</span>`+(ato?`<div class="parc-ato">⏸ ${ato}</div>`:"");
+      else if(congelada)badge=`<span class="parc-badge" style="background:#E1E5EB;color:#4A576A">suspensa</span>`;
       else if(isLib)badge=`<span class="parc-badge" style="background:var(--conc-l);color:var(--conc)">liberada</span>`;
       else if(e&&+p[K.np]>=3){
         if(sitTxt){const dl=sitTxt.toLowerCase().includes("dilig"),bl=ehBloco(sitTxt);
