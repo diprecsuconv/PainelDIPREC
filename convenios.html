@@ -268,8 +268,10 @@ function sitDoPasso(p,etapa){
   else if(etapa.indexOf("Consolidação")===0||etapa.indexOf("DIPREC")>=0){v=p[findKey(p,["situa","diprec"])||""]||"";}
   return norm(v);
 }
+function congeladaPorSusp(p){const np=+p[K.np];return CR.some(x=>norm(x[K.proc])===norm(p[K.proc]) && (+x[K.np])<np && parcSuspensa(x));}
 function etapaAtual(p){const dd=pd(p[K.dd]);if(!dd)return null;const np=+p[K.np];
   if(parcSuspensa(p))return null; // parcela suspensa congela
+  if(congeladaPorSusp(p))return null; // parcelas seguintes à suspensa também saem do radar (aguardam repactuação)
   const steps=np>=3?etDef():[etDef()[4]];
   for(const [etapa,resp,c,off,fk] of steps){if(!done(getF(p,fk))){const prazo=new Date(dd-off*864e5);prazo.setHours(0,0,0,0);let sit=sitDoPasso(p,etapa);if(/n[ãa]o se aplica/i.test(sit))sit="";const sl=sit.toLowerCase();return {etapa,resp,c,prazo,np,proc:norm(p[K.proc]),sit,dilig:sl.includes("dilig"),bloco:ehBloco(sit)};}}
   return null;
